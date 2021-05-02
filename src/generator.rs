@@ -9,8 +9,11 @@ use crate::position::Pos;
 pub type Path = Vec<Pos>;
 pub type PathRef<'a> = &'a [Pos];
 
-pub trait ChildrenGenerator {
-    fn generate_children(&self, current: &Pos, parent: Option<&Pos>) -> Vec<Child<Pos>>;
+pub trait ChildrenGenerator<N> {
+    fn generate_children(&self, current: &N, parent: Option<&N>) -> Vec<Child<N>>;
+}
+
+pub trait MazeChildrenGenerator: ChildrenGenerator<Pos> {
     fn reconstruct_path(&self, path: PathRef) -> (Path, f64);
 }
 
@@ -132,7 +135,7 @@ impl<'a> JpsGenerator<'a> {
     }
 }
 
-impl ChildrenGenerator for JpsGenerator<'_> {
+impl ChildrenGenerator<Pos> for JpsGenerator<'_> {
     fn generate_children(&self, current: &Pos, parent: Option<&Pos>) -> Vec<Child<Pos>> {
         let mut natural_neighbors = self.natural_neighbors(current);
 
@@ -144,7 +147,9 @@ impl ChildrenGenerator for JpsGenerator<'_> {
             }
         }
     }
+}
 
+impl MazeChildrenGenerator for JpsGenerator<'_> {
     fn reconstruct_path(&self, path: PathRef) -> (Path, f64) {
         if path.is_empty() {
             return (vec![], 0.0);

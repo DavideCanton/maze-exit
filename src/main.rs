@@ -6,6 +6,7 @@ use std::collections::BinaryHeap;
 use std::env;
 use std::error::Error;
 use std::path::{Path, PathBuf};
+use std::time::Instant;
 
 use image::{GenericImage, Rgba, RgbaImage};
 use show_image::error::SetImageError;
@@ -13,12 +14,11 @@ use show_image::event::{VirtualKeyCode, WindowEvent};
 use show_image::{create_window, Image, WindowProxy};
 
 use crate::algorithm::{a_star, QueueNode};
-use crate::generator::{ChildrenGenerator, JpsGenerator, PathRef};
-use crate::heuristics::heur_diag;
+use crate::generator::{JpsGenerator, MazeChildrenGenerator, PathRef};
+use crate::heuristics::{DiagonalHeuristic, HeuristicFn, MazeHeuristic};
 use crate::image_reader::read_from_image;
 use crate::maze::Maze;
 use crate::position::Pos;
-use std::time::Instant;
 
 #[allow(dead_code)]
 mod algorithm;
@@ -36,8 +36,7 @@ mod utils;
 struct App {
     maze: Option<Maze>,
     window: Option<WindowProxy>,
-    heuristic: Option<Box<dyn Fn(&Pos) -> f64>>,
-    max_heur: f64,
+    start_to_goal: f64,
     last: RefCell<Option<Vec<u8>>>,
     img_path: PathBuf,
 }
@@ -47,8 +46,7 @@ impl App {
         App {
             maze: None,
             window: None,
-            heuristic: None,
-            max_heur: 0.0,
+            start_to_goal: 0.0,
             last: RefCell::new(None),
             img_path,
         }
@@ -57,20 +55,25 @@ impl App {
     fn main(&mut self) -> Result<(), Box<dyn Error>> {
         self.maze = Some(self.build_maze());
         self.window = Some(create_window("image", Default::default())?);
-        self.heuristic = Some(Box::new(heur_diag(self.maze.as_ref().unwrap().goal)));
-        self.max_heur = self.heuristic.as_ref().unwrap()(&self.maze.as_ref().unwrap().start);
+
+        let maze = self.maze.as_ref().unwrap();
+        let window = self.window.as_ref().unwrap();
+
+        let mut heuristic = DiagonalHeuristic::new();
+        heuristic.set_goal(maze.goal);
+
+        self.start_to_goal = heuristic.compute_heuristic(&maze.start);
 
         self.display_image(None, None)?;
 
-        let maze = self.maze.as_ref();
-        let gen = JpsGenerator::new(maze.unwrap());
+        let gen = JpsGenerator::new(maze);
         let start_time = Instant::now();
 
         let res = a_star(
-            maze.unwrap().start,
-            |&pos| pos == maze.unwrap().goal,
-            self.heuristic.as_ref().unwrap(),
-            |c, p| gen.generate_children(c, p),
+            maze.start,
+            |&pos| pos == maze.goal,
+            &heuristic,
+            &gen,
             |q| {
                 self.display_image(None, Some(q)).unwrap();
             },
@@ -90,7 +93,7 @@ impl App {
             None => println!("Path not found"),
         }
 
-        for event in self.window.as_ref().unwrap().event_channel()? {
+        for event in window.event_channel()? {
             if let WindowEvent::KeyboardInput(event) = event {
                 let is_escape = event.input.key_code == Some(VirtualKeyCode::Escape)
                     && event.input.state.is_pressed();
@@ -120,8 +123,8 @@ impl App {
         if let Some(queue) = queue {
             for p in queue {
                 let Pos { x, y } = p.node;
-                let h: f64 = self.heuristic.as_ref().unwrap()(&p.node);
-                let v = (h / self.max_heur * 255.0) as u8;
+                let h: f64 = p.heuristic;
+                let v = (h / self.start_to_goal * 255.0) as u8;
                 img.put_pixel(x as u32, y as u32, Rgba::from([v, 255 - v, 0, 255]));
             }
         }

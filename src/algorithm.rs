@@ -2,24 +2,27 @@ use std::cmp::{max, Ordering};
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::hash::Hash;
 
+use crate::generator::ChildrenGenerator;
+use crate::heuristics::HeuristicFn;
+
 #[derive(Default, Debug)]
 pub struct Info {
     pub max_length: usize,
     pub nodes: u32,
 }
 
-pub struct QueueNode<'a, N> {
-    heuristic: &'a dyn Fn(&N) -> f64,
+pub struct QueueNode<N> {
+    pub heuristic: f64,
     pub node: N,
     pub depth: f64,
 }
 
-impl<'a, N> QueueNode<'a, N> {
-    fn new(node: N, heuristic: &'a dyn Fn(&N) -> f64) -> Self {
+impl<N> QueueNode<N> {
+    fn new(node: N, heuristic: f64) -> Self {
         QueueNode::with_depth(node, heuristic, 0.0)
     }
 
-    fn with_depth(node: N, heuristic: &'a dyn Fn(&N) -> f64, depth: f64) -> Self {
+    fn with_depth(node: N, heuristic: f64, depth: f64) -> Self {
         QueueNode {
             heuristic,
             node,
@@ -28,7 +31,7 @@ impl<'a, N> QueueNode<'a, N> {
     }
 }
 
-impl<'a, N> PartialEq for QueueNode<'a, N>
+impl<N> PartialEq for QueueNode<N>
 where
     N: Eq,
 {
@@ -37,9 +40,9 @@ where
     }
 }
 
-impl<'a, N> Eq for QueueNode<'a, N> where N: Eq {}
+impl<N> Eq for QueueNode<N> where N: Eq {}
 
-impl<'a, N> PartialOrd for QueueNode<'a, N>
+impl<N> PartialOrd for QueueNode<N>
 where
     N: Eq,
 {
@@ -48,14 +51,13 @@ where
     }
 }
 
-impl<'a, N> Ord for QueueNode<'a, N>
+impl<N> Ord for QueueNode<N>
 where
     N: Eq,
 {
     fn cmp(&self, other: &Self) -> Ordering {
-        let closure = self.heuristic;
-        let h1 = closure(&self.node) + self.depth as f64;
-        let h2 = closure(&other.node) + other.depth as f64;
+        let h1 = self.heuristic + self.depth as f64;
+        let h2 = other.heuristic + other.depth as f64;
         let res = h1.partial_cmp(&h2);
         res.unwrap().reverse()
     }
@@ -73,24 +75,29 @@ impl<N> Child<N> {
     }
 }
 
-pub fn a_star<N>(
+pub fn a_star<N, G, H>(
     start: N,
     goal: impl Fn(&N) -> bool,
-    heuristic: impl Fn(&N) -> f64,
-    mut gen_children: impl FnMut(&N, Option<&N>) -> Vec<Child<N>>,
+    heuristic: &H,
+    gen: &G,
     mut callback: impl FnMut(&BinaryHeap<QueueNode<N>>),
 ) -> (Option<Vec<N>>, Info)
 where
     N: Hash + Eq + Clone,
+    G: ChildrenGenerator<N>,
+    H: HeuristicFn<N>,
 {
     let mut depth: HashMap<N, f64> = HashMap::new();
     let mut parents: HashMap<N, N> = HashMap::new();
-    let mut queue: BinaryHeap<QueueNode<N>> = BinaryHeap::new();
+    let mut queue: BinaryHeap<_> = BinaryHeap::new();
     let mut visited: HashSet<N> = HashSet::new();
     let mut info = Info::default();
 
     depth.insert(start.clone(), 0.0);
-    queue.push(QueueNode::new(start.clone(), &heuristic));
+    queue.push(QueueNode::new(
+        start.clone(),
+        heuristic.compute_heuristic(&start),
+    ));
 
     while !queue.is_empty() {
         callback(&queue);
@@ -109,14 +116,14 @@ where
                 path.push(node.clone());
                 node = parents.get(&node).expect("not found in parents").clone();
             }
-            path.push(start);
+            path.push(start.clone());
             path.reverse();
             return (Some(path), info);
         }
 
         let parent = parents.get(&current_node);
 
-        for generated in gen_children(&current_node, parent) {
+        for generated in gen.generate_children(&current_node, parent) {
             let successor = generated.node.clone();
 
             let weight = generated.weight;
@@ -129,8 +136,11 @@ where
             if successor_depth < ex_depth {
                 parents.insert(successor.clone(), current_node.clone());
                 depth.insert(successor.clone(), successor_depth);
-                let new_node =
-                    QueueNode::with_depth(successor.clone(), &heuristic, successor_depth);
+                let new_node = QueueNode::with_depth(
+                    successor.clone(),
+                    heuristic.compute_heuristic(&successor),
+                    successor_depth,
+                );
                 queue.push(new_node);
             }
         }
