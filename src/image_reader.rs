@@ -2,7 +2,7 @@ use std::path::Path;
 
 use image::error::ImageResult;
 use image::io::Reader as ImageReader;
-use image::{GenericImageView, Rgba};
+use image::{GenericImageView, ImageError, Rgba};
 
 use crate::maze::Maze;
 use crate::maze_builder::MazeBuilder;
@@ -10,27 +10,39 @@ use crate::position::Pos;
 
 const THRESHOLD: f64 = 250.0;
 
-pub fn read_from_image(path: &Path) -> ImageResult<Maze> {
-    let image = ImageReader::open(path)?.decode()?;
-    let mut builder = MazeBuilder::new();
-    builder = builder.width(image.width()).height(image.height());
+pub trait MazeReader {
+    type Error;
 
-    for x in 0..image.width() {
-        for y in 0..image.height() {
-            let p = image.get_pixel(x, y);
-            let pos = Pos::new(x as i32, y as i32);
+    fn read_maze(&self, path: &Path) -> Result<Maze, Self::Error>;
+}
 
-            if is_wall(p) {
-                builder = builder.add_wall(pos);
-            } else if is_start(p) {
-                builder = builder.start(pos);
-            } else if is_goal(p) {
-                builder = builder.goal(pos);
+pub struct MazeImageReader;
+
+impl MazeReader for MazeImageReader {
+    type Error = ImageError;
+
+    fn read_maze(&self, path: &Path) -> ImageResult<Maze> {
+        let image = ImageReader::open(path)?.decode()?;
+        let mut builder = MazeBuilder::new();
+        builder = builder.width(image.width()).height(image.height());
+
+        for x in 0..image.width() {
+            for y in 0..image.height() {
+                let p = image.get_pixel(x, y);
+                let pos = Pos::new(x as i32, y as i32);
+
+                if is_wall(p) {
+                    builder = builder.add_wall(pos);
+                } else if is_start(p) {
+                    builder = builder.start(pos);
+                } else if is_goal(p) {
+                    builder = builder.goal(pos);
+                }
             }
         }
-    }
 
-    Ok(builder.build().unwrap())
+        Ok(builder.build().unwrap())
+    }
 }
 
 fn is_goal(pixel: Rgba<u8>) -> bool {

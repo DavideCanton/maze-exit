@@ -8,7 +8,7 @@ use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
-use image::{GenericImage, Rgba, RgbaImage};
+use image::{GenericImage, ImageResult, Rgba, RgbaImage};
 use show_image::error::SetImageError;
 use show_image::event::{VirtualKeyCode, WindowEvent};
 use show_image::{create_window, Image, WindowProxy};
@@ -16,7 +16,7 @@ use show_image::{create_window, Image, WindowProxy};
 use crate::algorithm::{a_star, QueueNode};
 use crate::generator::{JpsGenerator, MazeChildrenGenerator, PathRef};
 use crate::heuristics::{DiagonalHeuristic, HeuristicFn, MazeHeuristic};
-use crate::image_reader::read_from_image;
+use crate::image_reader::{MazeImageReader, MazeReader};
 use crate::maze::Maze;
 use crate::position::Pos;
 
@@ -53,7 +53,7 @@ impl App {
     }
 
     fn main(&mut self) -> Result<(), Box<dyn Error>> {
-        self.maze = Some(self.build_maze());
+        self.maze = Some(self.build_maze()?);
         self.window = Some(create_window("image", Default::default())?);
 
         let maze = self.maze.as_ref().unwrap();
@@ -173,9 +173,9 @@ impl App {
         self.window.as_ref().unwrap().set_image("image", img)
     }
 
-    fn build_maze(&self) -> Maze {
-        let maze = read_from_image(&self.img_path);
-        maze.unwrap()
+    fn build_maze(&self) -> ImageResult<Maze> {
+        let reader = MazeImageReader;
+        reader.read_maze(&self.img_path)
     }
 }
 
