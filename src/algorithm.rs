@@ -126,11 +126,12 @@ where
         for generated in gen.generate_children(&current_node, parent) {
             let successor = generated.node.clone();
 
-            let weight = generated.weight;
-            let successor_depth = *depth.get(&current_node).unwrap_or(&0.0) + weight;
             if visited.contains(&successor) {
                 continue;
             }
+            
+            let weight = generated.weight;
+            let successor_depth = *depth.get(&current_node).unwrap_or(&0.0) + weight;
 
             let ex_depth = *depth.get(&successor).unwrap_or(&f64::INFINITY);
             if successor_depth < ex_depth {

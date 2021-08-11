@@ -28,7 +28,8 @@ impl MazeHeuristic for DiagonalHeuristic {
 
 impl HeuristicFn<Pos> for DiagonalHeuristic {
     fn compute_heuristic(&self, node: &Pos) -> f64 {
-        let diff = *node - self.goal.expect("No goal set on heuristic");
+        let goal = self.goal.expect("No goal set on heuristic");
+        let diff = *node - goal;
         let dx = diff.x.abs();
         let dy = diff.y.abs();
 
