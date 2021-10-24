@@ -131,7 +131,7 @@ impl<'a> JpsGenerator<'a> {
             }
         }
 
-        return self.jump_rec(&next, direction, goal);
+        self.jump_rec(&next, direction, goal)
     }
 }
 

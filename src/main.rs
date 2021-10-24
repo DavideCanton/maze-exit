@@ -11,7 +11,7 @@ use std::time::Instant;
 use image::{GenericImage, ImageResult, Rgba, RgbaImage};
 use show_image::error::SetImageError;
 use show_image::event::{VirtualKeyCode, WindowEvent};
-use show_image::{create_window, Image, WindowProxy};
+use show_image::{create_window, Image, WindowOptions, WindowProxy};
 
 use crate::algorithm::{a_star, QueueNode};
 use crate::generator::{JpsGenerator, MazeChildrenGenerator, PathRef};
@@ -54,7 +54,14 @@ impl App {
 
     fn main(&mut self) -> Result<(), Box<dyn Error>> {
         self.maze = Some(self.build_maze()?);
-        self.window = Some(create_window("image", Default::default())?);
+
+        let options = WindowOptions {
+            size: self.maze.as_ref().map(|m| [m.width(), m.height()]),
+            preserve_aspect_ratio: true,
+            ..Default::default()
+        };
+
+        self.window = Some(create_window("image", options)?);
 
         let maze = self.maze.as_ref().unwrap();
         let window = self.window.as_ref().unwrap();

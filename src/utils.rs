@@ -4,5 +4,5 @@ pub fn wait_for_enter() {
     let mut stdin = stdin();
 
     println!("Press enter to continue...");
-    stdin.read(&mut [0u8]).unwrap();
+    stdin.read_exact(&mut [0u8]).unwrap();
 }

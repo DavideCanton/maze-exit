@@ -116,7 +116,7 @@ where
                 path.push(node.clone());
                 node = parents.get(&node).expect("not found in parents").clone();
             }
-            path.push(start.clone());
+            path.push(start);
             path.reverse();
             return (Some(path), info);
         }
@@ -129,7 +129,7 @@ where
             if visited.contains(&successor) {
                 continue;
             }
-            
+
             let weight = generated.weight;
             let successor_depth = *depth.get(&current_node).unwrap_or(&0.0) + weight;
 
