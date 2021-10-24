@@ -4,10 +4,8 @@ version = "0.1.0"
 authors = ["Davide Canton <davide.canton5@gmail.com>"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 impl_ops = "0.1.1"
-itertools = "0.10.0"
+itertools = "0.10.1"
 image = "0.23.14"
-show-image = { version = "0.8.2", features = ["image"] }
+show-image = { version = "0.9.4", features = ["image"] }
