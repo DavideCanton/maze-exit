@@ -80,17 +80,17 @@ pub fn a_star<N, G, H>(
     goal: impl Fn(&N) -> bool,
     heuristic: &H,
     gen: &G,
-    mut callback: impl FnMut(&BinaryHeap<QueueNode<N>>),
+    callback: impl Fn(&BinaryHeap<QueueNode<N>>),
 ) -> (Option<Vec<N>>, Info)
 where
     N: Hash + Eq + Clone,
     G: ChildrenGenerator<N>,
     H: HeuristicFn<N>,
 {
-    let mut depth: HashMap<N, f64> = HashMap::new();
+    let mut depth = HashMap::new();
     let mut parents: HashMap<N, N> = HashMap::new();
-    let mut queue: BinaryHeap<_> = BinaryHeap::new();
-    let mut visited: HashSet<N> = HashSet::new();
+    let mut queue = BinaryHeap::new();
+    let mut visited = HashSet::new();
     let mut info = Info::default();
 
     depth.insert(start.clone(), 0.0);
@@ -131,7 +131,7 @@ where
             }
 
             let weight = generated.weight;
-            let successor_depth = *depth.get(&current_node).unwrap_or(&0.0) + weight;
+            let successor_depth = depth.get(&current_node).unwrap_or(&0.0) + weight;
 
             let ex_depth = *depth.get(&successor).unwrap_or(&f64::INFINITY);
             if successor_depth < ex_depth {

@@ -71,27 +71,22 @@ impl Maze {
         matches!(self.get(result), Some(CellStatus::Wall))
     }
 
-    pub fn walls(&self) -> WallsIterator {
-        WallsIterator::new(&self.walls)
+    pub fn walls(&self) -> Box<impl Iterator<Item = &Pos>> {
+        Box::new(self.walls.iter())
     }
 }
 
-pub struct WallsIterator<'s> {
-    walls: Box<dyn Iterator<Item = &'s Pos> + 's>,
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-impl<'s> WallsIterator<'s> {
-    fn new(walls: &HashSet<Pos>) -> WallsIterator {
-        WallsIterator {
-            walls: Box::new(walls.iter()),
-        }
-    }
-}
-
-impl<'s> Iterator for WallsIterator<'s> {
-    type Item = &'s Pos;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.walls.next()
+    #[test]
+    pub fn test_creation() {
+        let maze = Maze::new(3, 4, Pos::new(0, 0), Pos::new(2, 3));
+        assert_eq!(maze.width(), 3);
+        assert_eq!(maze.height(), 4);
+        assert_eq!(maze.start, Pos::new(0, 0));
+        assert_eq!(maze.goal, Pos::new(2, 3));
+        assert_eq!(maze.walls().collect::<Vec<_>>().len(), 0);
     }
 }

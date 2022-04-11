@@ -29,17 +29,18 @@ impl<'a> JpsGenerator<'a> {
     fn natural_neighbors(&self, current: &Pos) -> Vec<Child<Pos>> {
         let pos = *current;
         vec![
-            Child::new(pos.move_up(), 1.0),
-            Child::new(pos.move_down(), 1.0),
-            Child::new(pos.move_left(), 1.0),
-            Child::new(pos.move_right(), 1.0),
-            Child::new(pos.move_up_left(), SQRT_2),
-            Child::new(pos.move_up_right(), SQRT_2),
-            Child::new(pos.move_down_left(), SQRT_2),
-            Child::new(pos.move_down_right(), SQRT_2),
+            (pos.move_up(), 1.0),
+            (pos.move_down(), 1.0),
+            (pos.move_left(), 1.0),
+            (pos.move_right(), 1.0),
+            (pos.move_up_left(), SQRT_2),
+            (pos.move_up_right(), SQRT_2),
+            (pos.move_down_left(), SQRT_2),
+            (pos.move_down_right(), SQRT_2),
         ]
         .into_iter()
-        .filter(|p| self.maze.is_free(&p.node))
+        .filter(|(n, _)| self.maze.is_free(n))
+        .map(|(n, c)| Child::new(n, c))
         .collect()
     }
     fn prune_neighbors(&self, current: &Pos, parent: &Pos, vec: &mut Vec<Child<Pos>>) {
@@ -105,19 +106,18 @@ impl<'a> JpsGenerator<'a> {
             return Some(next);
         }
 
-        let forced: Vec<Pos>;
-        if direction.is_diagonal() {
+        let forced = if direction.is_diagonal() {
             let cant_move = direction
                 .components()
                 .iter()
-                .all(|dirs| !self.maze.is_free(&(*current + *dirs)));
+                .all(|dirs| !self.maze.is_free(&(current + dirs)));
             if cant_move {
                 return None;
             }
-            forced = self.compute_forced_diagonal(current, direction);
+            self.compute_forced_diagonal(current, direction)
         } else {
-            forced = self.compute_forced_straight(&next, direction);
-        }
+            self.compute_forced_straight(&next, direction)
+        };
 
         if forced.iter().any(|f| self.maze.is_free(f)) {
             return Some(next);
@@ -155,7 +155,7 @@ impl MazeChildrenGenerator for JpsGenerator<'_> {
             return (vec![], 0.0);
         }
 
-        let mut result: Vec<Pos> = vec![*path.first().unwrap()];
+        let mut result = vec![*path.first().unwrap()];
         let mut cost = 0.0;
 
         for (cur, next) in path.iter().tuple_windows() {
