@@ -839,13 +839,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "maze_exit"
+name = "maze_exit_bin"
 version = "0.1.0"
 dependencies = [
  "image",
+ "maze_exit_lib",
+ "show-image",
+]
+
+[[package]]
+name = "maze_exit_lib"
+version = "0.1.0"
+dependencies = [
  "impl_ops",
  "itertools",
- "show-image",
 ]
 
 [[package]]

@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate impl_ops;
-
 use std::cell::RefCell;
 use std::collections::BinaryHeap;
 use std::env;
@@ -13,25 +10,14 @@ use show_image::error::SetImageError;
 use show_image::event::{VirtualKeyCode, WindowEvent};
 use show_image::{create_window, Image, WindowOptions, WindowProxy};
 
-use crate::algorithm::{a_star, QueueNode};
-use crate::generator::{JpsGenerator, MazeChildrenGenerator, PathRef};
-use crate::heuristics::{DiagonalHeuristic, HeuristicFn, MazeHeuristic};
 use crate::image_reader::{MazeImageReader, MazeReader};
-use crate::maze::Maze;
-use crate::position::Pos;
+use maze_exit_lib::algorithm::{a_star, QueueNode};
+use maze_exit_lib::generator::{JpsGenerator, MazeChildrenGenerator, PathRef};
+use maze_exit_lib::heuristics::{DiagonalHeuristic, HeuristicFn, MazeHeuristic};
+use maze_exit_lib::maze::Maze;
+use maze_exit_lib::position::Pos;
 
-#[allow(dead_code)]
-mod algorithm;
-#[allow(dead_code)]
-mod generator;
-mod heuristics;
 mod image_reader;
-#[allow(dead_code)]
-mod maze;
-mod maze_builder;
-mod position;
-#[allow(dead_code)]
-mod utils;
 
 struct App {
     maze: Option<Maze>,

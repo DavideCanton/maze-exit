@@ -4,9 +4,9 @@ use image::error::ImageResult;
 use image::io::Reader as ImageReader;
 use image::{GenericImageView, ImageError, Rgba};
 
-use crate::maze::Maze;
-use crate::maze_builder::MazeBuilder;
-use crate::position::Pos;
+use maze_exit_lib::maze::Maze;
+use maze_exit_lib::maze_builder::MazeBuilder;
+use maze_exit_lib::position::Pos;
 
 const THRESHOLD: f64 = 250.0;
 
