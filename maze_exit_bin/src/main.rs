@@ -52,7 +52,7 @@ impl App {
         let maze = self.maze.as_ref().unwrap();
         let window = self.window.as_ref().unwrap();
 
-        let mut heuristic = DiagonalHeuristic::new();
+        let mut heuristic = DiagonalHeuristic::default();
         heuristic.set_goal(maze.goal);
 
         self.start_to_goal = heuristic.compute_heuristic(&maze.start);
