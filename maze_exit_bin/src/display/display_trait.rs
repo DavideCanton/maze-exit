@@ -6,7 +6,7 @@ pub trait Displayer {
     fn init(&mut self) -> Result<(), String>;
 
     fn display_image(
-        &self,
+        &mut self,
         maze: &Maze,
         start_to_goal: f64,
         path: Option<PathRef>,

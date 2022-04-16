@@ -1,4 +1,3 @@
-use std::cell::RefCell;
 use std::collections::BinaryHeap;
 
 use image::{GenericImage, Rgba, RgbaImage};
@@ -13,14 +12,14 @@ use crate::display::display_trait::Displayer;
 
 pub struct GuiDisplayer {
     window: Option<WindowProxy>,
-    last: RefCell<Option<Vec<u8>>>,
+    last: Option<Vec<u8>>,
 }
 
 impl GuiDisplayer {
     pub fn new() -> Self {
         GuiDisplayer {
             window: None,
-            last: RefCell::new(None),
+            last: None,
         }
     }
 
@@ -68,7 +67,7 @@ impl Displayer for GuiDisplayer {
     }
 
     fn display_image(
-        &self,
+        &mut self,
         maze: &Maze,
         start_to_goal: f64,
         path: Option<PathRef>,
@@ -77,14 +76,14 @@ impl Displayer for GuiDisplayer {
         let w = maze.width();
         let h = maze.height();
 
-        let mut img = match self.last.borrow().as_ref() {
+        let mut img = match self.last.as_ref() {
             Some(v) => RgbaImage::from_raw(w, h, v.clone()).expect("Failed to create image"),
             None => RgbaImage::from_fn(w, h, |_, _| Rgba::from([255, 255, 255, 255])),
         };
 
         self.build_image(maze, start_to_goal, path, queue, &mut img);
         {
-            let vec = match self.last.borrow_mut().take() {
+            let vec = match self.last.take() {
                 Some(mut vec) => {
                     vec.clear();
                     vec.extend_from_slice(img.as_raw());
@@ -92,7 +91,7 @@ impl Displayer for GuiDisplayer {
                 }
                 None => Vec::from(img.as_raw().as_slice()),
             };
-            *self.last.borrow_mut() = Some(vec);
+            self.last = Some(vec);
         }
         let img = Image::BoxDyn(Box::new(img));
         self.window

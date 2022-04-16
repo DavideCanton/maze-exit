@@ -80,7 +80,7 @@ pub fn a_star<N, G, H>(
     goal: impl Fn(&N) -> bool,
     heuristic: &H,
     gen: &G,
-    callback: impl Fn(&BinaryHeap<QueueNode<N>>),
+    mut callback: impl FnMut(&BinaryHeap<QueueNode<N>>),
 ) -> (Option<Vec<N>>, Info)
 where
     N: Hash + Eq + Clone,

@@ -1,5 +1,6 @@
 use std::env;
 use std::error::Error;
+use std::io::stdout;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::time::Instant;
@@ -12,8 +13,9 @@ use maze_exit_lib::generator::{JpsGenerator, MazeChildrenGenerator};
 use maze_exit_lib::heuristics::{DiagonalHeuristic, HeuristicFn, MazeHeuristic};
 use maze_exit_lib::maze::Maze;
 
-use crate::display::display_trait::Displayer;
-use crate::display::gui_displayer::GuiDisplayer;
+use crate::display::{
+    display_trait::Displayer, gui_displayer::GuiDisplayer, term_displayer::TerminalDisplayer,
+};
 
 mod display;
 mod image_reader;
@@ -31,6 +33,16 @@ impl App {
         }
     }
 
+    fn create_displayer(&self, gui: bool) -> Result<Box<dyn Displayer>, Box<dyn Error>> {
+        let mut displayer: Box<dyn Displayer> = if gui {
+            Box::new(GuiDisplayer::new())
+        } else {
+            Box::new(TerminalDisplayer::new(stdout()))
+        };
+        displayer.init()?;
+        Ok(displayer)
+    }
+
     fn main(&mut self) -> Result<(), Box<dyn Error>> {
         let maze = Rc::new(self.build_maze()?);
         self.maze = Some(maze.clone());
@@ -40,8 +52,7 @@ impl App {
 
         let start_to_goal = heuristic.compute_heuristic(&maze.start);
 
-        let mut displayer = GuiDisplayer::new();
-        displayer.init()?;
+        let mut displayer = self.create_displayer(false)?;
 
         displayer.display_image(&maze, start_to_goal, None, None)?;
 
