@@ -10,19 +10,23 @@ use show_image::{
 
 use crate::display::display_trait::Displayer;
 
+/// Displays a maze in a window using [show_image](https://docs.rs/show_image/latest/show_image/).
 pub struct GuiDisplayer {
-    window: Option<WindowProxy>,
+    /// The window used to display the maze
+    window: WindowProxy,
+    /// The last image displayed, to double buffer
     last: Option<Vec<u8>>,
 }
 
 impl GuiDisplayer {
-    pub fn new() -> Self {
-        GuiDisplayer {
-            window: None,
-            last: None,
-        }
+    /// Creates a new `GuiDisplayer`.
+    /// It can fail if the `create_window` function fails.
+    pub fn new() -> Result<Self, String> {
+        let window = create_window("image", Default::default()).map_err(|e| e.to_string())?;
+        Ok(GuiDisplayer { window, last: None })
     }
 
+    /// Builds the image to display.
     fn build_image(
         &self,
         maze: &Maze,
@@ -61,11 +65,6 @@ impl GuiDisplayer {
 }
 
 impl Displayer for GuiDisplayer {
-    fn init(&mut self) -> Result<(), String> {
-        self.window = Some(create_window("image", Default::default()).map_err(|e| e.to_string())?);
-        Ok(())
-    }
-
     fn display_image(
         &mut self,
         maze: &Maze,
@@ -95,15 +94,14 @@ impl Displayer for GuiDisplayer {
         }
         let img = Image::BoxDyn(Box::new(img));
         self.window
-            .as_ref()
-            .unwrap()
             .set_image("image", img)
             .map_err(|e| e.to_string())
     }
 
+    /// Waits for `ESC` key to be pressed before exiting.
     fn wait_for_end(&self) -> Result<(), String> {
-        let window = self.window.as_ref().unwrap();
-        for event in window.event_channel().map_err(|e| e.to_string())? {
+        let events = self.window.event_channel().map_err(|e| e.to_string())?;
+        for event in events {
             if let WindowEvent::KeyboardInput(event) = event {
                 let is_escape = event.input.key_code == Some(VirtualKeyCode::Escape)
                     && event.input.state.is_pressed();

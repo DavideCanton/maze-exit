@@ -17,16 +17,31 @@ use crate::display::display_trait::Displayer;
 
 type CTResult = crossterm::Result<()>;
 
+/// Displays a maze in the terminal using [crossterm](https://docs.rs/crossterm/latest/crossterm/).
 pub struct TerminalDisplayer {
+    /// The character used to display a wall
     wall_char: char,
+    /// The character used to display a queue item
     queue_char: char,
+    /// The character used to display a path item
     path_char: char,
+    /// The character used to display the starting point
     start_char: char,
+    /// The character used to display the exit point
     goal_char: char,
+    /// An optional delay between each display update
     sleep_ms: Option<u64>,
 }
 
 impl TerminalDisplayer {
+    /// Creates a new `TerminalDisplayer`.
+    /// # Arguments
+    /// * `wall_char` - The character used to display a wall
+    /// * `queue_char` - The character used to display a queue item
+    /// * `path_char` - The character used to display a path item
+    /// * `start_char` - The character used to display the starting point
+    /// * `goal_char` - The character used to display the exit point
+    /// * `sleep_ms` - An optional delay between each display update
     pub fn new(
         wall_char: char,
         queue_char: char,
@@ -45,6 +60,7 @@ impl TerminalDisplayer {
         }
     }
 
+    /// Inner helper to display the maze in the terminal.    
     fn inner_display_image(
         &mut self,
         maze: &Maze,
@@ -54,7 +70,7 @@ impl TerminalDisplayer {
     ) -> CTResult {
         let mut stdout = stdout();
 
-        queue!(stdout, Clear(ClearType::All), MoveTo(0, 0), ResetColor,)?;
+        queue!(stdout, Clear(ClearType::All), MoveTo(0, 0), ResetColor)?;
 
         for w in maze.walls() {
             let Pos { x, y } = w;
@@ -115,11 +131,7 @@ impl TerminalDisplayer {
     }
 }
 
-impl Displayer for TerminalDisplayer {
-    fn init(&mut self) -> Result<(), String> {
-        Ok(())
-    }
-
+impl Displayer for TerminalDisplayer {    
     fn display_image(
         &mut self,
         maze: &Maze,
@@ -130,13 +142,18 @@ impl Displayer for TerminalDisplayer {
         self.inner_display_image(maze, start_to_goal, path, queue)
             .map_err(|e| e.to_string())
     }
-
-    fn wait_for_end(&self) -> Result<(), String> {
-        Ok(())
-    }
 }
 
 impl Default for TerminalDisplayer {
+    /// Default implementation for a `TerminalDisplayer`.
+    /// 
+    /// The `TerminalDisplayer::new` method is invoked with the following arguments:
+    /// * `wall_char` - `'#'`
+    /// * `queue_char` - `'*'`
+    /// * `path_char` - `'*'`
+    /// * `start_char` - `'S'`
+    /// * `goal_char` - `'G'`
+    /// * `sleep_ms` - `Some(100)`
     fn default() -> Self {
         TerminalDisplayer::new('+', '*', '*', 'S', 'G', Some(100))
     }
