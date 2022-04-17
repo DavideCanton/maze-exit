@@ -16,8 +16,8 @@ use maze_exit_lib::{
 
 use crate::{
     app::{
-        image_reader::{MazeImageReader, MazeReader},
         app_enums::{UIType, UITypeError},
+        image_reader::{MazeImageReader, MazeReader},
     },
     display::{
         display_trait::Displayer, gui_displayer::GuiDisplayer, term_displayer::TerminalDisplayer,
@@ -74,28 +74,21 @@ impl App {
         let gen = JpsGenerator::new(maze.as_ref());
         let start_time = Instant::now();
 
-        let res = a_star(
-            maze.start,
-            |&pos| pos == maze.goal,
-            &heuristic,
-            &gen,
-            |q| {
-                displayer
-                    .display_image(&maze, start_to_goal, None, Some(q))
-                    .unwrap();
-            },
-        );
+        let (path, info) = a_star(maze.start, maze.goal, &heuristic, &gen, |q| {
+            // here we ignore errors on display
+            let _ = displayer.display_image(&maze, start_to_goal, None, Some(q));
+        });
 
         let end_time = Instant::now() - start_time;
 
-        match res.0 {
+        match path {
             Some(path) => {
                 let (path, cost) = gen.reconstruct_path(&path);
                 displayer.display_image(&maze, start_to_goal, Some(&path), None)?;
                 println!("Path found!");
                 println!("Cost: {}", cost);
                 println!("Time: {}s", end_time.as_secs_f64());
-                println!("{:?}", res.1);
+                println!("{:?}", info);
                 displayer.wait_for_end()?;
             }
             None => println!("Path not found"),

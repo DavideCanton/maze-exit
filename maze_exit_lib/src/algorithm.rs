@@ -77,7 +77,7 @@ impl<N> Child<N> {
 
 pub fn a_star<N, G, H>(
     start: N,
-    goal: impl Fn(&N) -> bool,
+    goal: N,
     heuristic: &H,
     gen: &G,
     mut callback: impl FnMut(&BinaryHeap<QueueNode<N>>),
@@ -109,7 +109,7 @@ where
         let current_node = current.node;
         visited.insert(current_node.clone());
 
-        if goal(&current_node) {
+        if current_node == goal {
             let mut node = current_node;
             let mut path = vec![];
             while parents.contains_key(&node) {
