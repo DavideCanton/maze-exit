@@ -87,6 +87,6 @@ mod tests {
         assert_eq!(maze.height(), 4);
         assert_eq!(maze.start, Pos::new(0, 0));
         assert_eq!(maze.goal, Pos::new(2, 3));
-        assert_eq!(maze.walls().collect::<Vec<_>>().len(), 0);
+        assert_eq!(maze.walls().count(), 0);
     }
 }

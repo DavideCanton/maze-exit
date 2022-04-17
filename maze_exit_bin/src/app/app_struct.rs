@@ -25,14 +25,12 @@ use crate::{
 };
 
 pub struct App {
-    maze: Option<Rc<Maze>>,
     img_path: PathBuf,
 }
 
 impl App {
     pub fn new(img_path: PathBuf) -> Self {
         App {
-            maze: None,
             img_path,
         }
     }
@@ -62,7 +60,6 @@ impl App {
 
     pub fn main(&mut self) -> Result<(), Box<dyn Error>> {
         let maze = Rc::new(self.build_maze()?);
-        self.maze = Some(maze.clone());
 
         let mut heuristic = DiagonalHeuristic::default();
         heuristic.set_goal(maze.goal);
