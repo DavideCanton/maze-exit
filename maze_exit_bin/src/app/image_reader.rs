@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use image::error::ImageResult;
-use image::io::Reader as ImageReader;
+use image::io::Reader;
 use image::{GenericImageView, ImageError, Rgba};
 
 use maze_exit_lib::maze::Maze;
@@ -22,7 +22,9 @@ impl MazeReader for MazeImageReader {
     type Error = ImageError;
 
     fn read_maze(&self, path: &Path) -> ImageResult<Maze> {
-        let image = ImageReader::open(path)?.decode()?;
+        let mut reader = Reader::open(path)?;
+        reader.no_limits();
+        let image = reader.decode()?;
         let mut builder = MazeBuilder::new();
         builder = builder.width(image.width()).height(image.height());
 

@@ -1,3 +1,6 @@
 [workspace]
 members = ["maze_exit_bin", "maze_exit_lib"]
 resolver = "2"
+
+[profile.release]
+debug = true

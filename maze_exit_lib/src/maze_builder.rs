@@ -8,7 +8,7 @@ pub struct MazeBuilder {
     walls: HashSet<Pos>,
     start: Option<Pos>,
     goal: Option<Pos>,
-    error: bool,
+    errors: Vec<String>,
     width: Option<u32>,
     height: Option<u32>,
 }
@@ -17,7 +17,9 @@ macro_rules! set_or_error {
     ($name: ident, $arg: ty) => {
         pub fn $name(mut self, arg: $arg) -> Self {
             match self.$name {
-                Some(_) => self.error = true,
+                Some(_) => self
+                    .errors
+                    .push(format!("{} already set at {}", stringify!($name), arg)),
                 None => self.$name = Some(arg),
             };
             self
@@ -40,14 +42,27 @@ impl MazeBuilder {
         self
     }
 
-    pub fn build(self) -> Option<Maze> {
-        if self.error
+    pub fn build(mut self) -> Result<Maze, Vec<String>> {
+        if !self.errors.is_empty()
             || self.width.is_none()
             || self.height.is_none()
             || self.start.is_none()
-            || self.height.is_none()
+            || self.goal.is_none()
         {
-            None
+            if self.width.is_none() {
+                self.errors.push("width not set".to_owned());
+            }
+            if self.height.is_none() {
+                self.errors.push("height not set".to_owned());
+            }
+            if self.start.is_none() {
+                self.errors.push("start not set".to_owned());
+            }
+            if self.goal.is_none() {
+                self.errors.push("goal not set".to_owned());
+            }
+
+            Err(self.errors)
         } else {
             let mut maze = Maze::new(
                 self.width.unwrap(),
@@ -60,7 +75,7 @@ impl MazeBuilder {
                 maze.set(wall, CellStatus::Wall);
             }
 
-            Some(maze)
+            Ok(maze)
         }
     }
 }

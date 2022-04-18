@@ -1,4 +1,4 @@
-use std::ops;
+use std::{ops, fmt};
 
 #[derive(PartialOrd, PartialEq, Ord, Eq, Hash, Copy, Clone, Debug)]
 pub struct Pos {
@@ -76,5 +76,11 @@ impl Pos {
 impl From<(i32, i32)> for Pos {
     fn from(t: (i32, i32)) -> Self {
         Pos::new(t.0, t.1)
+    }
+}
+
+impl fmt::Display for Pos {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
     }
 }

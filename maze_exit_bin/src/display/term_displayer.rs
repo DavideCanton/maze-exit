@@ -59,6 +59,13 @@ impl TerminalDisplayer {
             sleep_ms,
         }
     }
+    
+    pub fn default_with_time(sleep_ms: Option<u64>) -> Self {
+        Self {
+            sleep_ms,
+            ..Self::default()
+        }
+    }
 
     /// Inner helper to display the maze in the terminal.    
     fn inner_display_image(
@@ -131,7 +138,7 @@ impl TerminalDisplayer {
     }
 }
 
-impl Displayer for TerminalDisplayer {    
+impl Displayer for TerminalDisplayer {
     fn display_image(
         &mut self,
         maze: &Maze,
@@ -146,7 +153,7 @@ impl Displayer for TerminalDisplayer {
 
 impl Default for TerminalDisplayer {
     /// Default implementation for a `TerminalDisplayer`.
-    /// 
+    ///
     /// The `TerminalDisplayer::new` method is invoked with the following arguments:
     /// * `wall_char` - `'#'`
     /// * `queue_char` - `'*'`

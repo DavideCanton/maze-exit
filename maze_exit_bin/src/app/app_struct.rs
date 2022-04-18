@@ -1,10 +1,4 @@
-use std::{
-    env::{self, VarError},
-    error::Error,
-    path::PathBuf,
-    rc::Rc,
-    time::Instant,
-};
+use std::{error::Error, path::PathBuf, rc::Rc, time::Instant};
 
 use image::ImageResult;
 use maze_exit_lib::{
@@ -16,43 +10,30 @@ use maze_exit_lib::{
 
 use crate::{
     app::{
-        app_enums::{UIType, UITypeError},
+        app_enums::UIType,
         image_reader::{MazeImageReader, MazeReader},
     },
     display::{
-        display_trait::Displayer, gui_displayer::GuiDisplayer, term_displayer::TerminalDisplayer,
+        display_trait::Displayer, gui_displayer::GuiDisplayer, noop_displayer::NoopDisplayer,
+        term_displayer::TerminalDisplayer,
     },
 };
 
 pub struct App {
     img_path: PathBuf,
+    ui_type: UIType,
 }
 
 impl App {
-    pub fn new(img_path: PathBuf) -> Self {
-        App {
-            img_path,
-        }
-    }
-
-    fn get_ui_type(&self) -> Result<UIType, UITypeError> {
-        match env::var("UI_TYPE") {
-            Ok(v) => v.parse().map_err(|e| UITypeError::ParseEnumError(e, v)),
-
-            Err(VarError::NotPresent) => Ok(UIType::Terminal),
-
-            e => e
-                .map(|_| UIType::Terminal) // needed to typecheck, but here we are always in error
-                .map_err(UITypeError::VarError),
-        }
+    pub fn new(img_path: PathBuf, ui_type: UIType) -> Self {
+        App { img_path, ui_type }
     }
 
     fn create_displayer(&self) -> Result<Box<dyn Displayer>, Box<dyn Error>> {
-        let ui_type = self.get_ui_type()?;
-
-        let displayer: Box<dyn Displayer> = match ui_type {
+        let displayer: Box<dyn Displayer> = match self.ui_type {
             UIType::Gui => Box::new(GuiDisplayer::new()?),
             UIType::Terminal => Box::new(TerminalDisplayer::default()),
+            UIType::Noop => Box::new(NoopDisplayer),
         };
 
         Ok(displayer)
@@ -83,6 +64,7 @@ impl App {
                 let (path, cost) = gen.reconstruct_path(&path);
                 displayer.display_image(&maze, start_to_goal, Some(&path), None)?;
                 println!("Path found!");
+                println!("Length: {}", path.len());
                 println!("Cost: {}", cost);
                 println!("Time: {}s", end_time.as_secs_f64());
                 println!("{:?}", info);
