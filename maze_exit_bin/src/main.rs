@@ -3,6 +3,7 @@ use app::app_struct::App;
 use clap::Parser;
 use context::{create_context, ContextResult};
 use std::path::Path;
+
 mod app;
 mod context;
 mod display;
