@@ -4,7 +4,7 @@ use maze_exit_lib::{algorithm::QueueNode, generator::PathRef, maze::Maze, positi
 
 use crate::display::display_trait::Displayer;
 
-pub struct NoopDisplayer;
+pub(super) struct NoopDisplayer;
 
 impl Displayer for NoopDisplayer {
     fn display_image(

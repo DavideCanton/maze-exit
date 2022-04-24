@@ -18,7 +18,7 @@ use crate::display::display_trait::Displayer;
 type CTResult = crossterm::Result<()>;
 
 /// Displays a maze in the terminal using [crossterm](https://docs.rs/crossterm/latest/crossterm/).
-pub struct TerminalDisplayer {
+pub(super) struct TerminalDisplayer {
     /// The character used to display a wall
     wall_char: char,
     /// The character used to display a queue item
@@ -59,7 +59,7 @@ impl TerminalDisplayer {
             sleep_ms,
         }
     }
-    
+
     pub fn default_with_time(sleep_ms: Option<u64>) -> Self {
         Self {
             sleep_ms,

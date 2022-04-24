@@ -13,10 +13,7 @@ use crate::{
         app_enums::UIType,
         image_reader::{MazeImageReader, MazeReader},
     },
-    display::{
-        display_trait::Displayer, gui_displayer::GuiDisplayer, noop_displayer::NoopDisplayer,
-        term_displayer::TerminalDisplayer,
-    },
+    display::create_displayer,
 };
 
 pub struct App {
@@ -29,16 +26,6 @@ impl App {
         App { img_path, ui_type }
     }
 
-    fn create_displayer(&self) -> Result<Box<dyn Displayer>, Box<dyn Error>> {
-        let displayer: Box<dyn Displayer> = match self.ui_type {
-            UIType::Gui => Box::new(GuiDisplayer::new()?),
-            UIType::Terminal => Box::new(TerminalDisplayer::default()),
-            UIType::Noop => Box::new(NoopDisplayer),
-        };
-
-        Ok(displayer)
-    }
-
     pub fn main(&mut self) -> Result<(), Box<dyn Error>> {
         let maze = Rc::new(self.build_maze()?);
 
@@ -46,7 +33,7 @@ impl App {
         heuristic.set_goal(maze.goal);
         let start_to_goal = heuristic.compute_heuristic(&maze.start);
 
-        let mut displayer = self.create_displayer()?;
+        let mut displayer = create_displayer(self.ui_type)?;
         displayer.display_image(&maze, start_to_goal, None, None)?;
 
         let gen = JpsGenerator::new(maze.as_ref());

@@ -11,7 +11,7 @@ use show_image::{
 use crate::display::display_trait::Displayer;
 
 /// Displays a maze in a window using [show_image](https://docs.rs/show_image/latest/show_image/).
-pub struct GuiDisplayer {
+pub(super) struct GuiDisplayer {
     /// The window used to display the maze
     window: WindowProxy,
     /// The last image displayed, to double buffer

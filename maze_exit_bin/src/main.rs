@@ -1,9 +1,10 @@
 use app::app_enums::UIType;
 use app::app_struct::App;
 use clap::Parser;
-use std::error::Error;
+use context::{create_context, ContextResult};
 use std::path::Path;
 mod app;
+mod context;
 mod display;
 
 #[macro_use]
@@ -25,9 +26,13 @@ struct Args {
     ui_type: UIType,
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> ContextResult {
     let args = Args::parse();
 
-    let mut app = App::new(Path::new(&args.img_path).to_owned(), args.ui_type);
-    app.main()
+    let ctx = create_context(args.ui_type)?;
+
+    ctx.run(move || {
+        let mut app = App::new(Path::new(&args.img_path).to_owned(), args.ui_type);
+        app.main()
+    })
 }
