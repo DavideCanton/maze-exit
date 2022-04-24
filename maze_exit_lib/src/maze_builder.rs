@@ -17,9 +17,10 @@ macro_rules! set_or_error {
     ($name: ident, $arg: ty) => {
         pub fn $name(mut self, arg: $arg) -> Self {
             match self.$name {
-                Some(_) => self
-                    .errors
-                    .push(format!("{} already set at {}", stringify!($name), arg)),
+                Some(_) => {
+                    self.errors
+                        .push(format!("{} already set at {}", stringify!($name), arg))
+                }
                 None => self.$name = Some(arg),
             };
             self
@@ -43,27 +44,9 @@ impl MazeBuilder {
     }
 
     pub fn build(mut self) -> Result<Maze, Vec<String>> {
-        if !self.errors.is_empty()
-            || self.width.is_none()
-            || self.height.is_none()
-            || self.start.is_none()
-            || self.goal.is_none()
-        {
-            if self.width.is_none() {
-                self.errors.push("width not set".to_owned());
-            }
-            if self.height.is_none() {
-                self.errors.push("height not set".to_owned());
-            }
-            if self.start.is_none() {
-                self.errors.push("start not set".to_owned());
-            }
-            if self.goal.is_none() {
-                self.errors.push("goal not set".to_owned());
-            }
+        self.check_options();
 
-            Err(self.errors)
-        } else {
+        if self.errors.is_empty() {
             let mut maze = Maze::new(
                 self.width.unwrap(),
                 self.height.unwrap(),
@@ -76,6 +59,23 @@ impl MazeBuilder {
             }
 
             Ok(maze)
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    fn check_options(&mut self) {
+        if self.width.is_none() {
+            self.errors.push("width not set".to_owned());
+        }
+        if self.height.is_none() {
+            self.errors.push("height not set".to_owned());
+        }
+        if self.start.is_none() {
+            self.errors.push("start not set".to_owned());
+        }
+        if self.goal.is_none() {
+            self.errors.push("goal not set".to_owned());
         }
     }
 }
