@@ -16,7 +16,7 @@ pub mod term_displayer;
 pub fn create_displayer(ui_type: UIType) -> Result<Box<dyn Displayer>, Box<dyn Error>> {
     let displayer: Box<dyn Displayer> = match ui_type {
         UIType::Gui => Box::new(GuiDisplayer::new()?),
-        UIType::Terminal => Box::new(TerminalDisplayer::default()),
+        UIType::Terminal => Box::<TerminalDisplayer>::default(),
         UIType::Noop => Box::new(NoopDisplayer),
     };
 

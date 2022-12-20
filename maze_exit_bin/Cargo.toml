@@ -11,7 +11,7 @@ maze_exit_lib = { path = "../maze_exit_lib" }
 crossterm = "0.25.0"
 enum_derive = "0.1.7"
 custom_derive = "0.1.7"
-clap = { version = "3.1.9", features = ["derive"] }
+clap = { version = "4.0.29", features = ["derive"] }
 
 [dev-dependencies]
 test-case = "2.0.2"

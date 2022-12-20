@@ -83,7 +83,6 @@ mod tests {
         assert_eq!((*context).type_id(), type_id);
         let res = context.run(|| Ok(()));
         assert!(res.is_ok());
-        assert_eq!(res.unwrap(), ());
     }
 
     fn common_error_test(ui_type: UIType) {

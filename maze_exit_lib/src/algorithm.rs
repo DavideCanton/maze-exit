@@ -56,8 +56,8 @@ where
     N: Eq,
 {
     fn cmp(&self, other: &Self) -> Ordering {
-        let h1 = self.heuristic + self.depth as f64;
-        let h2 = other.heuristic + other.depth as f64;
+        let h1 = self.heuristic + self.depth;
+        let h2 = other.heuristic + other.depth;
         let res = h1.partial_cmp(&h2);
         res.unwrap().reverse()
     }
