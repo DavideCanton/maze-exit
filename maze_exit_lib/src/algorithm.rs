@@ -1,9 +1,9 @@
 use std::cmp::{max, Ordering};
 use std::collections::{BinaryHeap, HashMap, HashSet};
-use std::hash::Hash;
 
 use crate::generator::ChildrenGenerator;
 use crate::heuristics::HeuristicFn;
+use crate::position::Pos;
 
 #[derive(Default, Debug)]
 pub struct Info {
@@ -11,18 +11,18 @@ pub struct Info {
     pub nodes: u32,
 }
 
-pub struct QueueNode<N> {
+pub struct QueueNode {
     pub heuristic: f64,
-    pub node: N,
+    pub node: Pos,
     pub depth: f64,
 }
 
-impl<N> QueueNode<N> {
-    fn new(node: N, heuristic: f64) -> Self {
+impl QueueNode {
+    fn new(node: Pos, heuristic: f64) -> Self {
         QueueNode::with_depth(node, heuristic, 0.0)
     }
 
-    fn with_depth(node: N, heuristic: f64, depth: f64) -> Self {
+    fn with_depth(node: Pos, heuristic: f64, depth: f64) -> Self {
         QueueNode {
             heuristic,
             node,
@@ -31,30 +31,21 @@ impl<N> QueueNode<N> {
     }
 }
 
-impl<N> PartialEq for QueueNode<N>
-where
-    N: Eq,
-{
+impl PartialEq for QueueNode {
     fn eq(&self, other: &Self) -> bool {
         self.node.eq(&other.node)
     }
 }
 
-impl<N> Eq for QueueNode<N> where N: Eq {}
+impl Eq for QueueNode {}
 
-impl<N> PartialOrd for QueueNode<N>
-where
-    N: Eq,
-{
+impl PartialOrd for QueueNode {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl<N> Ord for QueueNode<N>
-where
-    N: Eq,
-{
+impl Ord for QueueNode {
     fn cmp(&self, other: &Self) -> Ordering {
         let h1 = self.heuristic + self.depth;
         let h2 = other.heuristic + other.depth;
@@ -64,40 +55,36 @@ where
 }
 
 #[derive(Debug)]
-pub struct Child<N> {
-    pub node: N,
+pub struct Child {
+    pub node: Pos,
     pub weight: f64,
 }
 
-impl<N> Child<N> {
-    pub fn new(node: N, weight: f64) -> Self {
+impl Child {
+    pub fn new(node: Pos, weight: f64) -> Self {
         Child { node, weight }
     }
 }
 
-pub fn a_star<N, G, H>(
-    start: N,
-    goal: N,
+pub fn a_star<G, H>(
+    start: Pos,
+    goal: Pos,
     heuristic: &H,
     gen: &G,
-    mut callback: impl FnMut(&BinaryHeap<QueueNode<N>>),
-) -> (Option<Vec<N>>, Info)
+    mut callback: impl FnMut(&BinaryHeap<QueueNode>),
+) -> (Option<Vec<Pos>>, Info)
 where
-    N: Hash + Eq + Clone,
-    G: ChildrenGenerator<N>,
-    H: HeuristicFn<N>,
+    G: ChildrenGenerator,
+    H: HeuristicFn,
 {
     let mut depth = HashMap::new();
-    let mut parents: HashMap<N, N> = HashMap::new();
+    let mut parents: HashMap<Pos, Pos> = HashMap::new();
     let mut queue = BinaryHeap::new();
     let mut visited = HashSet::new();
     let mut info = Info::default();
 
-    depth.insert(start.clone(), 0.0);
-    queue.push(QueueNode::new(
-        start.clone(),
-        heuristic.compute_heuristic(&start),
-    ));
+    depth.insert(start, 0.0);
+    queue.push(QueueNode::new(start, heuristic.compute_heuristic(&start)));
 
     while !queue.is_empty() {
         callback(&queue);
@@ -107,14 +94,14 @@ where
 
         let current = queue.pop().unwrap();
         let current_node = current.node;
-        visited.insert(current_node.clone());
+        visited.insert(current_node);
 
         if current_node == goal {
             let mut node = current_node;
             let mut path = vec![];
             while parents.contains_key(&node) {
-                path.push(node.clone());
-                node = parents.get(&node).expect("not found in parents").clone();
+                path.push(node);
+                node = *parents.get(&node).expect("not found in parents");
             }
             path.push(start);
             path.reverse();
@@ -124,7 +111,7 @@ where
         let parent = parents.get(&current_node);
 
         for generated in gen.generate_children(&current_node, parent) {
-            let successor = generated.node.clone();
+            let successor = generated.node;
 
             if visited.contains(&successor) {
                 continue;
@@ -135,10 +122,10 @@ where
 
             let ex_depth = *depth.get(&successor).unwrap_or(&f64::INFINITY);
             if successor_depth < ex_depth {
-                parents.insert(successor.clone(), current_node.clone());
-                depth.insert(successor.clone(), successor_depth);
+                parents.insert(successor, current_node);
+                depth.insert(successor, successor_depth);
                 let new_node = QueueNode::with_depth(
-                    successor.clone(),
+                    successor,
                     heuristic.compute_heuristic(&successor),
                     successor_depth,
                 );

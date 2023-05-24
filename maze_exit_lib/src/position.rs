@@ -1,4 +1,4 @@
-use std::{ops, fmt};
+use std::{fmt, ops};
 
 #[derive(PartialOrd, PartialEq, Ord, Eq, Hash, Copy, Clone, Debug)]
 pub struct Pos {

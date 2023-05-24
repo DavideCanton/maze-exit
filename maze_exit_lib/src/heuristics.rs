@@ -2,11 +2,11 @@ use std::f64::consts::SQRT_2;
 
 use crate::position::Pos;
 
-pub trait HeuristicFn<N> {
-    fn compute_heuristic(&self, node: &N) -> f64;
+pub trait HeuristicFn {
+    fn compute_heuristic(&self, node: &Pos) -> f64;
 }
 
-pub trait MazeHeuristic: HeuristicFn<Pos> {
+pub trait MazeHeuristic: HeuristicFn {
     fn set_goal(&mut self, goal: Pos);
 }
 
@@ -21,7 +21,7 @@ impl MazeHeuristic for DiagonalHeuristic {
     }
 }
 
-impl HeuristicFn<Pos> for DiagonalHeuristic {
+impl HeuristicFn for DiagonalHeuristic {
     fn compute_heuristic(&self, node: &Pos) -> f64 {
         let goal = self.goal.expect("No goal set on heuristic");
         let diff = *node - goal;
