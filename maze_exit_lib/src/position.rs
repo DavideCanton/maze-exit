@@ -1,6 +1,6 @@
 use std::{fmt, ops};
 
-#[derive(PartialOrd, PartialEq, Ord, Eq, Hash, Copy, Clone, Debug)]
+#[derive(PartialOrd, PartialEq, Ord, Eq, Hash, Clone, Copy, Debug)]
 pub struct Pos {
     pub x: i32,
     pub y: i32,

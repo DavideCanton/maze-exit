@@ -7,7 +7,7 @@ pub trait HeuristicFn {
 }
 
 pub trait MazeHeuristic: HeuristicFn {
-    fn set_goal(&mut self, goal: Pos);
+    fn set_goal(&mut self, goal: &Pos);
 }
 
 #[derive(Default)]
@@ -16,8 +16,8 @@ pub struct DiagonalHeuristic {
 }
 
 impl MazeHeuristic for DiagonalHeuristic {
-    fn set_goal(&mut self, goal: Pos) {
-        self.goal = Some(goal);
+    fn set_goal(&mut self, goal: &Pos) {
+        self.goal = Some(*goal);
     }
 }
 

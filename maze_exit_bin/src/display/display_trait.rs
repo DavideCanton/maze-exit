@@ -18,7 +18,7 @@ pub trait Displayer {
         maze: &Maze,
         start_to_goal: f64,
         path: Option<PathRef>,
-        queue: Option<&BinaryHeap<QueueNode>>,
+        queue: Option<&BinaryHeap<&QueueNode>>,
     ) -> Result<(), String>;
 
     /// Invoked when the path is found, to eventually wait for a user input before exiting. Not mandatory to implement.

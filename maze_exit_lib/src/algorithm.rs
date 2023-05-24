@@ -1,6 +1,8 @@
 use std::cmp::{max, Ordering};
 use std::collections::{BinaryHeap, HashMap, HashSet};
 
+use typed_arena::Arena;
+
 use crate::generator::ChildrenGenerator;
 use crate::heuristics::HeuristicFn;
 use crate::position::Pos;
@@ -71,20 +73,24 @@ pub fn a_star<G, H>(
     goal: Pos,
     heuristic: &H,
     gen: &G,
-    mut callback: impl FnMut(&BinaryHeap<QueueNode>),
+    mut callback: impl FnMut(&BinaryHeap<&QueueNode>),
 ) -> (Option<Vec<Pos>>, Info)
 where
     G: ChildrenGenerator,
     H: HeuristicFn,
 {
+    let node_arena = Arena::new();
+
     let mut depth = HashMap::new();
     let mut parents: HashMap<Pos, Pos> = HashMap::new();
-    let mut queue = BinaryHeap::new();
+    let mut queue: BinaryHeap<&QueueNode> = BinaryHeap::new();
     let mut visited = HashSet::new();
     let mut info = Info::default();
 
     depth.insert(start, 0.0);
-    queue.push(QueueNode::new(start, heuristic.compute_heuristic(&start)));
+
+    let start_node = QueueNode::new(start, heuristic.compute_heuristic(&start));
+    queue.push(node_arena.alloc(start_node));
 
     while !queue.is_empty() {
         callback(&queue);
@@ -129,7 +135,7 @@ where
                     heuristic.compute_heuristic(&successor),
                     successor_depth,
                 );
-                queue.push(new_node);
+                queue.push(node_arena.alloc(new_node));
             }
         }
     }

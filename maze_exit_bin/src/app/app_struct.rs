@@ -30,7 +30,7 @@ impl App {
         let maze = Rc::new(self.build_maze()?);
 
         let mut heuristic = DiagonalHeuristic::default();
-        heuristic.set_goal(maze.goal);
+        heuristic.set_goal(&maze.goal);
         let start_to_goal = heuristic.compute_heuristic(&maze.start);
 
         let mut displayer = create_displayer(self.ui_type)?;

@@ -73,7 +73,7 @@ impl TerminalDisplayer {
         maze: &Maze,
         start_to_goal: f64,
         path: Option<PathRef>,
-        queue: Option<&BinaryHeap<QueueNode>>,
+        queue: Option<&BinaryHeap<&QueueNode>>,
     ) -> CTResult {
         let mut stdout = stdout();
 
@@ -144,7 +144,7 @@ impl Displayer for TerminalDisplayer {
         maze: &Maze,
         start_to_goal: f64,
         path: Option<PathRef>,
-        queue: Option<&BinaryHeap<QueueNode>>,
+        queue: Option<&BinaryHeap<&QueueNode>>,
     ) -> Result<(), String> {
         self.inner_display_image(maze, start_to_goal, path, queue)
             .map_err(|e| e.to_string())

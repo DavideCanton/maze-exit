@@ -32,7 +32,7 @@ impl GuiDisplayer {
         maze: &Maze,
         start_to_goal: f64,
         path: Option<PathRef>,
-        queue: Option<&BinaryHeap<QueueNode>>,
+        queue: Option<&BinaryHeap<&QueueNode>>,
         img: &mut impl GenericImage<Pixel = Rgba<u8>>,
     ) {
         for w in maze.walls() {
@@ -70,7 +70,7 @@ impl Displayer for GuiDisplayer {
         maze: &Maze,
         start_to_goal: f64,
         path: Option<PathRef>,
-        queue: Option<&BinaryHeap<QueueNode>>,
+        queue: Option<&BinaryHeap<&QueueNode>>,
     ) -> Result<(), String> {
         let w = maze.width();
         let h = maze.height();

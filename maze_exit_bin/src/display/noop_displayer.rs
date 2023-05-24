@@ -12,7 +12,7 @@ impl Displayer for NoopDisplayer {
         _maze: &Maze,
         _start_to_goal: f64,
         _path: Option<PathRef>,
-        _queue: Option<&BinaryHeap<QueueNode>>,
+        _queue: Option<&BinaryHeap<&QueueNode>>,
     ) -> Result<(), String> {
         Ok(())
     }
