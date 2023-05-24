@@ -1,5 +1,6 @@
 use std::{any::Any, error::Error};
 
+#[cfg(feature = "gui")]
 use show_image::run_context;
 
 use crate::app::app_enums::UIType;
@@ -24,8 +25,10 @@ where
     }
 }
 
+#[cfg(feature = "gui")]
 struct ShowImageContext;
 
+#[cfg(feature = "gui")]
 impl<F> Context<F> for ShowImageContext
 where
     F: FnOnce() -> ContextResult + Send + 'static,
@@ -40,6 +43,7 @@ where
     F: FnOnce() -> ContextResult + Send + 'static,
 {
     let context: Box<dyn Context<F>> = match ui_type {
+        #[cfg(feature = "gui")]
         UIType::Gui => Box::new(ShowImageContext),
         _ => Box::new(PlainContext),
     };
@@ -55,7 +59,7 @@ mod tests {
     use super::*;
 
     #[test]
-    #[cfg(feature = "gui_test")]
+    #[cfg(feature = "gui")]
     fn test_create_context_gui() {
         common_ok_test(UIType::Gui, TypeId::of::<ShowImageContext>());
     }
@@ -73,7 +77,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "gui_test")]
+    #[cfg(feature = "gui")]
     fn test_run_context_gui_err() {
         common_error_test(UIType::Gui);
     }

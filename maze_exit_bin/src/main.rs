@@ -8,13 +8,8 @@ mod app;
 mod context;
 mod display;
 
-#[macro_use]
-extern crate custom_derive;
-#[macro_use]
-extern crate enum_derive;
-
 #[derive(Parser, Debug)]
-#[clap(
+#[command(
     author="Davide C. <davide.canton5@gmail.com>", 
     version="1.0", 
     about="A* algorithm for solving mazes", 
@@ -23,7 +18,7 @@ extern crate enum_derive;
 struct Args {
     img_path: String,
 
-    #[clap(short, long)]
+    #[arg(short, long)]
     ui_type: UIType,
 }
 

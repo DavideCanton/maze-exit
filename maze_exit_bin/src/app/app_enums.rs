@@ -1,8 +1,9 @@
-custom_derive! {
-    #[derive(Debug, EnumFromStr, Clone, Copy)]
-    pub enum UIType {
-        Terminal,
-        Gui,
-        Noop,
-    }
+use clap::ValueEnum;
+
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum UIType {
+    Terminal,
+    #[cfg(feature = "gui")]
+    Gui,
+    Noop,
 }
