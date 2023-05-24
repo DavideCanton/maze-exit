@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::maze::{CellStatus, Maze};
+use crate::maze::Maze;
 use crate::position::Pos;
 
 #[derive(Default)]
@@ -55,7 +55,9 @@ impl MazeBuilder {
             );
 
             for wall in self.walls {
-                maze.set(wall, CellStatus::Wall);
+                if let Err(s) = maze.set(wall, true) {
+                    panic!("Invalid wall {}, {}", wall, s);
+                }
             }
 
             Ok(maze)

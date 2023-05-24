@@ -10,11 +10,6 @@ pub struct Maze {
     pub goal: Pos,
 }
 
-pub enum CellStatus {
-    Wall,
-    Empty,
-}
-
 impl Maze {
     pub fn new(width: u32, height: u32, start: Pos, goal: Pos) -> Self {
         Maze {
@@ -34,41 +29,29 @@ impl Maze {
         self.h
     }
 
-    pub fn get(&self, pos: &Pos) -> Option<CellStatus> {
-        if self.contains(pos) {
-            let is_wall = self.walls.contains(pos);
-            Some(if is_wall {
-                CellStatus::Wall
-            } else {
-                CellStatus::Empty
-            })
-        } else {
-            None
-        }
-    }
-
-    pub fn contains(&self, pos: &Pos) -> bool {
+    pub fn valid(&self, pos: &Pos) -> bool {
         pos.x < self.w as i32 && pos.y < self.h as i32 && pos.x >= 0 && pos.y >= 0
     }
 
-    pub fn set(&mut self, pos: Pos, status: CellStatus) -> bool {
-        if self.contains(&pos) {
-            match status {
-                CellStatus::Empty => self.walls.remove(&pos),
-                CellStatus::Wall => self.walls.insert(pos),
-            };
-            true
+    pub fn set(&mut self, pos: Pos, wall: bool) -> Result<(), String> {
+        if self.valid(&pos) {
+            if wall {
+                self.walls.insert(pos);
+            } else {
+                self.walls.remove(&pos);
+            }
+            Ok(())
         } else {
-            false
+            Err(format!("Invalid position provided: {}", pos))
         }
     }
 
-    pub fn is_free(&self, result: &Pos) -> bool {
-        matches!(self.get(result), Some(CellStatus::Empty))
+    pub fn is_free(&self, pos: &Pos) -> bool {
+        self.valid(pos) && !self.is_wall(pos)
     }
 
-    pub fn is_wall(&self, result: &Pos) -> bool {
-        matches!(self.get(result), Some(CellStatus::Wall))
+    pub fn is_wall(&self, pos: &Pos) -> bool {
+        self.valid(pos) && self.walls.contains(pos)
     }
 
     pub fn walls(&self) -> Box<impl Iterator<Item = &Pos>> {
