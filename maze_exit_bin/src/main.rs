@@ -29,6 +29,7 @@ fn main() -> ContextResult {
 
     ctx.run(move || {
         let mut app = App::new(Path::new(&args.img_path).to_owned(), args.ui_type);
-        app.main()
+        app.main()?;
+        Ok(())
     })
 }

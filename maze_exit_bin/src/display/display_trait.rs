@@ -1,6 +1,6 @@
-use std::collections::BinaryHeap;
-
+use anyhow::Result;
 use maze_exit_lib::{algorithm::QueueNode, generator::PathRef, maze::Maze};
+use std::collections::BinaryHeap;
 
 /// Trait to display a maze.
 pub trait Displayer {
@@ -19,10 +19,10 @@ pub trait Displayer {
         start_to_goal: f64,
         path: Option<PathRef>,
         queue: Option<&BinaryHeap<&QueueNode>>,
-    ) -> Result<(), String>;
+    ) -> Result<()>;
 
     /// Invoked when the path is found, to eventually wait for a user input before exiting. Not mandatory to implement.
-    fn wait_for_end(&self) -> Result<(), String> {
+    fn wait_for_end(&self) -> Result<()> {
         Ok(())
     }
 }

@@ -1,3 +1,4 @@
+use anyhow::Result;
 use std::collections::BinaryHeap;
 
 use maze_exit_lib::{algorithm::QueueNode, generator::PathRef, maze::Maze};
@@ -13,7 +14,7 @@ impl Displayer for NoopDisplayer {
         _start_to_goal: f64,
         _path: Option<PathRef>,
         _queue: Option<&BinaryHeap<&QueueNode>>,
-    ) -> Result<(), String> {
+    ) -> Result<()> {
         Ok(())
     }
 }

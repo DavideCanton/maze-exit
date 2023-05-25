@@ -1,5 +1,4 @@
-use std::collections::BinaryHeap;
-
+use anyhow::Result;
 use image::{GenericImage, Rgba, RgbaImage};
 use maze_exit_lib::{algorithm::QueueNode, generator::PathRef, maze::Maze, position::Pos};
 use show_image::{
@@ -7,6 +6,7 @@ use show_image::{
     event::{VirtualKeyCode, WindowEvent},
     Image, WindowProxy,
 };
+use std::collections::BinaryHeap;
 
 use crate::display::display_trait::Displayer;
 
@@ -21,8 +21,8 @@ pub(super) struct GuiDisplayer {
 impl GuiDisplayer {
     /// Creates a new `GuiDisplayer`.
     /// It can fail if the `create_window` function fails.
-    pub fn new() -> Result<Self, String> {
-        let window = create_window("image", Default::default()).map_err(|e| e.to_string())?;
+    pub fn new() -> Result<Self> {
+        let window = create_window("image", Default::default())?;
         Ok(GuiDisplayer { window, last: None })
     }
 
@@ -56,10 +56,10 @@ impl GuiDisplayer {
             }
         }
 
-        let Pos { x, y } = maze.start;
+        let Pos { x, y } = *maze.start();
         img.put_pixel(x as u32, y as u32, Rgba::from([255, 0, 0, 255]));
 
-        let Pos { x, y } = maze.goal;
+        let Pos { x, y } = *maze.goal();
         img.put_pixel(x as u32, y as u32, Rgba::from([0, 255, 0, 255]));
     }
 }
@@ -71,7 +71,7 @@ impl Displayer for GuiDisplayer {
         start_to_goal: f64,
         path: Option<PathRef>,
         queue: Option<&BinaryHeap<&QueueNode>>,
-    ) -> Result<(), String> {
+    ) -> Result<()> {
         let w = maze.width();
         let h = maze.height();
 
@@ -94,13 +94,13 @@ impl Displayer for GuiDisplayer {
         }
         let img = Image::BoxDyn(Box::new(img));
         self.window
-            .set_image("image", img)
-            .map_err(|e| e.to_string())
+            .set_image("image", img)?;
+        Ok(())
     }
 
     /// Waits for `ESC` key to be pressed before exiting.
-    fn wait_for_end(&self) -> Result<(), String> {
-        let events = self.window.event_channel().map_err(|e| e.to_string())?;
+    fn wait_for_end(&self) -> Result<()> {
+        let events = self.window.event_channel()?;
         for event in events {
             if let WindowEvent::KeyboardInput(event) = event {
                 let is_escape = event.input.key_code == Some(VirtualKeyCode::Escape)

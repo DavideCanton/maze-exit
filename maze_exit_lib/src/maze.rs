@@ -6,8 +6,8 @@ pub struct Maze {
     walls: HashSet<Pos>,
     w: u32,
     h: u32,
-    pub start: Pos,
-    pub goal: Pos,
+    start: Pos,
+    goal: Pos,
 }
 
 impl Maze {
@@ -19,6 +19,14 @@ impl Maze {
             start,
             walls: HashSet::new(),
         }
+    }
+
+    pub fn start(&self) -> &Pos {
+        &self.start
+    }
+
+    pub fn goal(&self) -> &Pos {
+        &self.goal
     }
 
     pub fn width(&self) -> u32 {

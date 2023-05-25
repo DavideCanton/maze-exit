@@ -55,7 +55,7 @@ impl<'a> JpsGenerator<'a> {
     fn do_jump(&self, current: &Pos, vec: Vec<Child>) -> Vec<Child> {
         vec.into_iter()
             .filter_map(|p| {
-                self.jump_rec(current, &(p.node - *current), &self.maze.goal)
+                self.jump_rec(current, &(p.node - *current), self.maze.goal())
                     .map(|j| Child::new(j, (j - *current).norm()))
             })
             .collect()

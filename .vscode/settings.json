@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
         "Displayer"
-    ]
+    ],
+    "rust-analyzer.cargo.features": "all"
 }

@@ -1,4 +1,4 @@
-use std::{error::Error, path::PathBuf, rc::Rc, time::Instant};
+use std::{path::PathBuf, rc::Rc, time::Instant};
 
 use image::ImageResult;
 use maze_exit_lib::{
@@ -15,7 +15,7 @@ use crate::{
     },
     display::create_displayer,
 };
-
+use anyhow::Result;
 pub struct App {
     img_path: PathBuf,
     ui_type: UIType,
@@ -26,12 +26,12 @@ impl App {
         App { img_path, ui_type }
     }
 
-    pub fn main(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn main(&mut self) -> Result<()> {
         let maze = Rc::new(self.build_maze()?);
 
         let mut heuristic = DiagonalHeuristic::default();
-        heuristic.set_goal(&maze.goal);
-        let start_to_goal = heuristic.compute_heuristic(&maze.start);
+        heuristic.set_goal(maze.goal());
+        let start_to_goal = heuristic.compute_heuristic(maze.start());
 
         let mut displayer = create_displayer(self.ui_type)?;
         displayer.display_image(&maze, start_to_goal, None, None)?;
@@ -39,7 +39,7 @@ impl App {
         let gen = JpsGenerator::new(maze.as_ref());
         let start_time = Instant::now();
 
-        let (path, info) = a_star(maze.start, maze.goal, &heuristic, &gen, |q| {
+        let (path, info) = a_star(*maze.start(), *maze.goal(), &heuristic, &gen, |q| {
             // here we ignore errors on display
             let _ = displayer.display_image(&maze, start_to_goal, None, Some(q));
         });

@@ -1,3 +1,4 @@
+use anyhow::Result;
 use std::{
     collections::BinaryHeap,
     io::{stdout, Write},
@@ -110,14 +111,14 @@ impl TerminalDisplayer {
             }
         }
 
-        let Pos { x, y } = maze.start;
+        let Pos { x, y } = *maze.start();
         queue!(
             stdout,
             MoveTo(x as u16, y as u16),
             SetForegroundColor(Color::Red),
             Print(self.start_char)
         )?;
-        let Pos { x, y } = maze.goal;
+        let Pos { x, y } = *maze.goal();
         queue!(
             stdout,
             MoveTo(x as u16, y as u16),
@@ -145,9 +146,9 @@ impl Displayer for TerminalDisplayer {
         start_to_goal: f64,
         path: Option<PathRef>,
         queue: Option<&BinaryHeap<&QueueNode>>,
-    ) -> Result<(), String> {
-        self.inner_display_image(maze, start_to_goal, path, queue)
-            .map_err(|e| e.to_string())
+    ) -> Result<()> {
+        self.inner_display_image(maze, start_to_goal, path, queue)?;
+        Ok(())
     }
 }
 
