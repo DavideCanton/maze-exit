@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::position::Pos;
+use crate::position::{Pos, PosUnit};
 
 pub struct Maze {
     walls: HashSet<Pos>,
@@ -38,7 +38,7 @@ impl Maze {
     }
 
     pub fn valid(&self, pos: &Pos) -> bool {
-        pos.x < self.w as i32 && pos.y < self.h as i32 && pos.x >= 0 && pos.y >= 0
+        pos.x < self.w as PosUnit && pos.y < self.h as PosUnit && pos.x >= 0 && pos.y >= 0
     }
 
     pub fn set(&mut self, pos: Pos, wall: bool) -> Result<(), String> {

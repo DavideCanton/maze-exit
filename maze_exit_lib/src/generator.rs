@@ -29,14 +29,14 @@ impl<'a> JpsGenerator<'a> {
     fn natural_neighbors(&self, current: &Pos) -> Vec<Child> {
         let pos = *current;
         vec![
-            (pos.move_up(), 1.0),
-            (pos.move_down(), 1.0),
-            (pos.move_left(), 1.0),
-            (pos.move_right(), 1.0),
-            (pos.move_up_left(), SQRT_2),
-            (pos.move_up_right(), SQRT_2),
-            (pos.move_down_left(), SQRT_2),
-            (pos.move_down_right(), SQRT_2),
+            (pos.up(), 1.0),
+            (pos.down(), 1.0),
+            (pos.left(), 1.0),
+            (pos.right(), 1.0),
+            (pos.up_left(), SQRT_2),
+            (pos.up_right(), SQRT_2),
+            (pos.down_left(), SQRT_2),
+            (pos.down_right(), SQRT_2),
         ]
         .into_iter()
         .filter(|(n, _)| self.maze.is_free(n))
