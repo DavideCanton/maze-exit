@@ -53,25 +53,24 @@ where
 
 #[cfg(test)]
 mod tests {
-    use anyhow::anyhow;
+    use anyhow::bail;
     use std::any::TypeId;
     use test_case::test_case;
 
     use super::*;
 
-    
-    #[test_case(UIType::Noop; "when ui_type is Noop")]
+    #[test_case(UIType::No; "when ui_type is Noop")]
     #[test_case(UIType::Terminal; "when ui_type is Terminal")]
     fn test_create_context_plain(ui_type: UIType) {
         common_ok_test(ui_type, TypeId::of::<PlainContext>());
     }
-    
-    #[test_case(UIType::Noop; "when ui_type is Noop")]
+
+    #[test_case(UIType::No; "when ui_type is Noop")]
     #[test_case(UIType::Terminal; "when ui_type is Terminal")]
     fn test_run_context_err(ui_type: UIType) {
         common_error_test(ui_type);
     }
-    
+
     // TODO these tests fail
     // #[test]
     // #[cfg(feature = "gui")]
@@ -94,7 +93,7 @@ mod tests {
 
     fn common_error_test(ui_type: UIType) {
         let context = create_context(ui_type).unwrap();
-        let res = context.run(|| Err(anyhow!("foo")));
+        let res = context.run(|| bail!("foo"));
         assert!(res.is_err());
         assert_eq!(format!("{}", res.err().unwrap()), "foo");
     }

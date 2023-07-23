@@ -5,12 +5,12 @@ authors = ["Davide Canton <davide.canton5@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.71"
 image = "0.24.1"
 show-image = { version = "0.13.1", features = ["image"], optional = true }
 maze_exit_lib = { path = "../maze_exit_lib" }
 crossterm = "0.26.1"
 clap = { version = "4.3.0", features = ["derive"] }
+anyhow.workspace = true
 
 [dev-dependencies]
 test-case = "3.1.0"

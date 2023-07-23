@@ -1,7 +1,7 @@
-use std::collections::HashSet;
-
 use crate::maze::Maze;
 use crate::position::Pos;
+use anyhow::{bail, Result};
+use std::collections::HashSet;
 
 #[derive(Default)]
 pub struct MazeBuilder {
@@ -43,7 +43,7 @@ impl MazeBuilder {
         self
     }
 
-    pub fn build(mut self) -> Result<Maze, Vec<String>> {
+    pub fn build(mut self) -> Result<Maze> {
         self.check_options();
 
         if self.errors.is_empty() {
@@ -62,7 +62,7 @@ impl MazeBuilder {
 
             Ok(maze)
         } else {
-            Err(self.errors)
+            bail!(self.errors.join("\n"));
         }
     }
 

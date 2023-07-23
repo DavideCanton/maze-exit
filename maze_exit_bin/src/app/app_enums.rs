@@ -5,5 +5,5 @@ pub enum UIType {
     Terminal,
     #[cfg(feature = "gui")]
     Gui,
-    Noop,
+    No,
 }

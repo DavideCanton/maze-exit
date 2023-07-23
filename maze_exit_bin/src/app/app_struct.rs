@@ -1,6 +1,5 @@
 use std::{path::PathBuf, rc::Rc, time::Instant};
 
-use image::ImageResult;
 use maze_exit_lib::{
     algorithm::a_star,
     generator::{JpsGenerator, MazeChildrenGenerator},
@@ -16,6 +15,7 @@ use crate::{
     display::create_displayer,
 };
 use anyhow::Result;
+
 pub struct App {
     img_path: PathBuf,
     ui_type: UIType,
@@ -63,7 +63,7 @@ impl App {
         Ok(())
     }
 
-    fn build_maze(&self) -> ImageResult<Maze> {
+    fn build_maze(&self) -> Result<Maze> {
         let reader = MazeImageReader;
         reader.read_maze(&self.img_path)
     }

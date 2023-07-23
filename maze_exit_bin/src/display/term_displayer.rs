@@ -130,10 +130,9 @@ impl TerminalDisplayer {
 
         stdout.flush()?;
 
-        self.sleep_ms
-            .map(Duration::from_millis)
-            .into_iter()
-            .for_each(sleep);
+        if let Some(ms) = self.sleep_ms {
+            sleep(Duration::from_millis(ms));
+        }
 
         Ok(())
     }

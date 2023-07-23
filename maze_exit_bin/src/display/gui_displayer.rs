@@ -93,8 +93,7 @@ impl Displayer for GuiDisplayer {
             self.last = Some(vec);
         }
         let img = Image::BoxDyn(Box::new(img));
-        self.window
-            .set_image("image", img)?;
+        self.window.set_image("image", img)?;
         Ok(())
     }
 

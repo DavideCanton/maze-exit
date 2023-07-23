@@ -18,7 +18,7 @@ mod display;
 struct Args {
     img_path: String,
 
-    #[arg(short, long)]
+    #[arg(short, long, value_enum, default_value_t = UIType::No)]
     ui_type: UIType,
 }
 

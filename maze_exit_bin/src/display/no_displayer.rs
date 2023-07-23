@@ -5,9 +5,9 @@ use maze_exit_lib::{algorithm::QueueNode, generator::PathRef, maze::Maze};
 
 use crate::display::display_trait::Displayer;
 
-pub(super) struct NoopDisplayer;
+pub(super) struct NoDisplayer;
 
-impl Displayer for NoopDisplayer {
+impl Displayer for NoDisplayer {
     fn display_image(
         &mut self,
         _maze: &Maze,

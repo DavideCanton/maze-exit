@@ -1,8 +1,7 @@
-use std::path::Path;
-
-use image::error::ImageResult;
+use anyhow::Result;
 use image::io::Reader;
-use image::{GenericImageView, ImageError, Rgba};
+use image::{GenericImageView, Rgba};
+use std::path::Path;
 
 use maze_exit_lib::maze::Maze;
 use maze_exit_lib::maze_builder::MazeBuilder;
@@ -11,17 +10,13 @@ use maze_exit_lib::position::Pos;
 const THRESHOLD: f64 = 250.0;
 
 pub trait MazeReader {
-    type Error;
-
-    fn read_maze(&self, path: &Path) -> Result<Maze, Self::Error>;
+    fn read_maze(&self, path: &Path) -> Result<Maze>;
 }
 
 pub struct MazeImageReader;
 
 impl MazeReader for MazeImageReader {
-    type Error = ImageError;
-
-    fn read_maze(&self, path: &Path) -> ImageResult<Maze> {
+    fn read_maze(&self, path: &Path) -> Result<Maze> {
         let mut reader = Reader::open(path)?;
         reader.no_limits();
         let image = reader.decode()?;
@@ -43,7 +38,7 @@ impl MazeReader for MazeImageReader {
             }
         }
 
-        Ok(builder.build().unwrap())
+        builder.build()
     }
 }
 
