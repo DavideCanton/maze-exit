@@ -104,7 +104,7 @@ where
 
         if current_node == goal {
             let mut node = current_node;
-            let mut path = vec![];
+            let mut path = Vec::new();
             while parents.contains_key(&node) {
                 path.push(node);
                 node = *parents.get(&node).expect("not found in parents");

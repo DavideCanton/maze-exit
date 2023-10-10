@@ -152,7 +152,7 @@ impl ChildrenGenerator for JpsGenerator<'_> {
 impl MazeChildrenGenerator for JpsGenerator<'_> {
     fn reconstruct_path(&self, path: PathRef) -> (Path, f64) {
         if path.is_empty() {
-            return (vec![], 0.0);
+            return (Vec::new(), 0.0);
         }
 
         let mut result = vec![*path.first().unwrap()];
