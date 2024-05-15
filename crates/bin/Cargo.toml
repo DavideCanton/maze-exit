@@ -7,7 +7,7 @@ edition = "2021"
 [dependencies]
 image = "0.24.1"
 show-image = { version = "0.13.1", features = ["image"], optional = true }
-maze_exit_lib = { path = "../maze_exit_lib" }
+maze_exit_lib = { path = "../lib" }
 crossterm = "0.26.1"
 clap = { version = "4.3.0", features = ["derive"] }
 anyhow.workspace = true

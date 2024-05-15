@@ -1,5 +1,5 @@
 [workspace]
-members = ["maze_exit_bin", "maze_exit_lib"]
+members = ["crates/bin", "crates/lib"]
 resolver = "2"
 
 [profile.release]
