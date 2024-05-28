@@ -1,25 +1,22 @@
 use anyhow::Result;
-use std::{
-    collections::BinaryHeap,
-    io::{stdout, Write},
-    thread::sleep,
-    time::Duration,
-};
-
 use crossterm::{
     cursor::MoveTo,
     queue,
     style::{Color, Print, ResetColor, SetForegroundColor},
     terminal::{Clear, ClearType},
 };
+use maze_exit_bin_common::{parse_args, App, Displayer};
 use maze_exit_lib::{algorithm::QueueNode, generator::PathRef, maze::Maze, position::Pos};
-
-use crate::display::display_trait::Displayer;
-
-type CTResult = crossterm::Result<()>;
+use std::{
+    collections::BinaryHeap,
+    io::{stdout, Result as IoResult, Write},
+    path::Path,
+    thread::sleep,
+    time::Duration,
+};
 
 /// Displays a maze in the terminal using [crossterm](https://docs.rs/crossterm/latest/crossterm/).
-pub(super) struct TerminalDisplayer {
+struct TerminalDisplayer {
     /// The character used to display a wall
     wall_char: char,
     /// The character used to display a queue item
@@ -61,6 +58,7 @@ impl TerminalDisplayer {
         }
     }
 
+    #[allow(dead_code)]
     pub fn default_with_time(sleep_ms: Option<u64>) -> Self {
         Self {
             sleep_ms,
@@ -75,7 +73,7 @@ impl TerminalDisplayer {
         start_to_goal: f64,
         path: Option<PathRef>,
         queue: Option<&BinaryHeap<&QueueNode>>,
-    ) -> CTResult {
+    ) -> IoResult<()> {
         let mut stdout = stdout();
 
         queue!(stdout, Clear(ClearType::All), MoveTo(0, 0), ResetColor)?;
@@ -164,4 +162,14 @@ impl Default for TerminalDisplayer {
     fn default() -> Self {
         TerminalDisplayer::new('+', '*', '*', 'S', 'G', Some(100))
     }
+}
+
+fn main() -> Result<()> {
+    let args = parse_args();
+
+    let mut app = App::new(
+        Path::new(&args.img_path).to_owned(),
+        TerminalDisplayer::default(),
+    );
+    app.main()
 }

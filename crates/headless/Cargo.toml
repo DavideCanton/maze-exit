@@ -1,0 +1,10 @@
+[package]
+name = "maze_exit_bin_headless"
+version = "0.1.0"
+authors = ["Davide Canton <davide.canton5@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+maze_exit_lib = { path = "../lib" }
+maze_exit_bin_common = { path = "../bin_common" }
+anyhow.workspace = true

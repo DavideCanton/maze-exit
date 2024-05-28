@@ -1,6 +1,7 @@
 use anyhow::Result;
-use maze_exit_lib::{algorithm::QueueNode, generator::PathRef, maze::Maze};
 use std::collections::BinaryHeap;
+
+use maze_exit_lib::{algorithm::QueueNode, generator::PathRef, maze::Maze};
 
 /// Trait to display a maze.
 pub trait Displayer {

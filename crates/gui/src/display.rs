@@ -1,5 +1,6 @@
 use anyhow::Result;
 use image::{GenericImage, Rgba, RgbaImage};
+use maze_exit_bin_common::Displayer;
 use maze_exit_lib::{algorithm::QueueNode, generator::PathRef, maze::Maze, position::Pos};
 use show_image::{
     create_window,
@@ -8,10 +9,8 @@ use show_image::{
 };
 use std::collections::BinaryHeap;
 
-use crate::display::display_trait::Displayer;
-
 /// Displays a maze in a window using [show_image](https://docs.rs/show_image/latest/show_image/).
-pub(super) struct GuiDisplayer {
+pub struct GuiDisplayer {
     /// The window used to display the maze
     window: WindowProxy,
     /// The last image displayed, to double buffer
@@ -27,12 +26,12 @@ impl GuiDisplayer {
     }
 
     /// Builds the image to display.
-    fn build_image(
+    fn build_image<'a>(
         &self,
         maze: &Maze,
         start_to_goal: f64,
         path: Option<PathRef>,
-        queue: Option<&BinaryHeap<&QueueNode>>,
+        queue: Option<impl Iterator<Item = &'a QueueNode>>,
         img: &mut impl GenericImage<Pixel = Rgba<u8>>,
     ) {
         for w in maze.walls() {
@@ -80,18 +79,14 @@ impl Displayer for GuiDisplayer {
             None => RgbaImage::from_fn(w, h, |_, _| Rgba::from([255, 255, 255, 255])),
         };
 
-        self.build_image(maze, start_to_goal, path, queue, &mut img);
-        {
-            let vec = match self.last.take() {
-                Some(mut vec) => {
-                    vec.clear();
-                    vec.extend_from_slice(img.as_raw());
-                    vec
-                }
-                None => Vec::from(img.as_raw().as_slice()),
-            };
-            self.last = Some(vec);
-        }
+        self.build_image(
+            maze,
+            start_to_goal,
+            path,
+            queue.map(|v| v.iter().copied()),
+            &mut img,
+        );
+        self.last.replace(img.as_raw().to_vec());
         let img = Image::BoxDyn(Box::new(img));
         self.window.set_image("image", img)?;
         Ok(())

@@ -1,6 +1,6 @@
 use std::{fmt, ops};
 
-pub type PosUnit = i16;
+pub type PosUnit = i64;
 
 #[derive(PartialOrd, PartialEq, Ord, Eq, Hash, Clone, Copy, Debug)]
 pub struct Pos {

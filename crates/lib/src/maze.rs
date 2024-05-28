@@ -62,8 +62,8 @@ impl Maze {
         self.valid(pos) && self.walls.contains(pos)
     }
 
-    pub fn walls(&self) -> Box<impl Iterator<Item = &Pos>> {
-        Box::new(self.walls.iter())
+    pub fn walls(&self) -> impl Iterator<Item = &Pos> {
+        self.walls.iter()
     }
 }
 
