@@ -1,11 +1,11 @@
 use anyhow::Result;
-use image::{GenericImage, Rgba, RgbaImage};
+use image::{Rgba, RgbaImage};
 use maze_exit_bin_common::Displayer;
 use maze_exit_lib::{algorithm::QueueNode, generator::PathRef, maze::Maze, position::Pos};
 use show_image::{
     create_window,
     event::{VirtualKeyCode, WindowEvent},
-    Image, WindowProxy,
+    WindowProxy,
 };
 use std::collections::BinaryHeap;
 
@@ -14,7 +14,7 @@ pub struct GuiDisplayer {
     /// The window used to display the maze
     window: WindowProxy,
     /// The last image displayed, to double buffer
-    last: Option<Vec<u8>>,
+    last: Option<RgbaImage>,
 }
 
 impl GuiDisplayer {
@@ -32,7 +32,7 @@ impl GuiDisplayer {
         start_to_goal: f64,
         path: Option<PathRef>,
         queue: Option<impl Iterator<Item = &'a QueueNode>>,
-        img: &mut impl GenericImage<Pixel = Rgba<u8>>,
+        img: &mut RgbaImage,
     ) {
         for w in maze.walls() {
             let Pos { x, y } = w;
@@ -74,10 +74,10 @@ impl Displayer for GuiDisplayer {
         let w = maze.width();
         let h = maze.height();
 
-        let mut img = match self.last.as_ref() {
-            Some(v) => RgbaImage::from_raw(w, h, v.clone()).expect("Failed to create image"),
-            None => RgbaImage::from_fn(w, h, |_, _| Rgba::from([255, 255, 255, 255])),
-        };
+        let mut img = self
+            .last
+            .take()
+            .unwrap_or_else(|| RgbaImage::from_pixel(w, h, Rgba::from([255, 255, 255, 255])));
 
         self.build_image(
             maze,
@@ -86,9 +86,8 @@ impl Displayer for GuiDisplayer {
             queue.map(|v| v.iter().copied()),
             &mut img,
         );
-        self.last.replace(img.as_raw().to_vec());
-        let img = Image::BoxDyn(Box::new(img));
-        self.window.set_image("image", img)?;
+        self.window.set_image("image", img.clone())?;
+        self.last.replace(img);
         Ok(())
     }
 
