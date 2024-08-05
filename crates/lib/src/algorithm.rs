@@ -35,7 +35,7 @@ impl QueueNode {
 
 impl PartialEq for QueueNode {
     fn eq(&self, other: &Self) -> bool {
-        self.node.eq(&other.node)
+        self.cmp(other) == Ordering::Equal
     }
 }
 
@@ -56,7 +56,7 @@ impl Ord for QueueNode {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Child {
     pub node: Pos,
     pub weight: f64,
@@ -92,13 +92,12 @@ where
     let start_node = QueueNode::new(start, heuristic.compute_heuristic(start));
     queue.push(node_arena.alloc(start_node));
 
-    while !queue.is_empty() {
+    while let Some(current) = queue.pop() {
         callback(&queue);
 
         info.nodes += 1;
         info.max_length = max(info.max_length, queue.len());
 
-        let current = queue.pop().unwrap();
         let current_node = current.node;
         visited.insert(current_node);
 
@@ -114,16 +113,16 @@ where
             return (Some(path), info);
         }
 
-        let parent = parents.get(&current_node);
-
-        for generated in gen.generate_children(current_node, parent.copied()) {
-            let successor = generated.node;
+        for generated in gen.generate_children(current_node, parents.get(&current_node).copied()) {
+            let Child {
+                node: successor,
+                weight,
+            } = generated;
 
             if visited.contains(&successor) {
                 continue;
             }
 
-            let weight = generated.weight;
             let successor_depth = depth.get(&current_node).unwrap_or(&0.0) + weight;
 
             let ex_depth = *depth.get(&successor).unwrap_or(&f64::INFINITY);

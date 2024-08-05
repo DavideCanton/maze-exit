@@ -29,7 +29,7 @@ impl<D: Displayer> App<D> {
     pub fn main(&mut self) -> Result<()> {
         let maze = self.build_maze()?;
 
-        let heuristic = DiagonalHeuristic::new(maze.goal());
+        let heuristic = DiagonalHeuristic::new(&maze);
         let start_to_goal = heuristic.compute_heuristic(maze.start());
 
         self.displayer

@@ -46,6 +46,8 @@ impl MazeBuilder {
     pub fn build(mut self) -> Result<Maze> {
         self.check_options();
 
+        let mut maze_opt = None;
+
         if self.errors.is_empty() {
             let mut maze = Maze::new(
                 self.width.unwrap(),
@@ -56,11 +58,15 @@ impl MazeBuilder {
 
             for wall in self.walls {
                 if let Err(s) = maze.set(wall, true) {
-                    panic!("Invalid wall {}, {}", wall, s);
+                    self.errors.push(format!("Invalid wall {}, {}", wall, s));
                 }
             }
 
-            Ok(maze)
+            maze_opt = Some(maze);
+        }
+
+        if self.errors.is_empty() {
+            Ok(maze_opt.unwrap())
         } else {
             bail!(self.errors.join("\n"));
         }
