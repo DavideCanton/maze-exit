@@ -1,11 +1,10 @@
-use anyhow;
 use glam::I64Vec2;
 
 pub type PosUnit = i64;
 pub type Pos = I64Vec2;
 
 pub trait MyFuncs: Sized {
-    fn convert<X: TryInto<PosUnit>, Y: TryInto<PosUnit>>(x: X, y: Y) -> anyhow::Result<Self>;
+    fn convert<T: Into<PosUnit>>(x: T, y: T) -> Self;
 
     fn is_diagonal(&self) -> bool;
 
@@ -41,18 +40,18 @@ pub trait MyFuncs: Sized {
 }
 
 impl MyFuncs for Pos {
-    fn convert<X: TryInto<PosUnit>, Y: TryInto<PosUnit>>(x: X, y: Y) -> anyhow::Result<Self> {
-        let x = x.try_into().unwrap_or(0); // .map_err(|e| anyhow::anyhow!(e))?;
-        let y = y.try_into().unwrap_or(0); //map_err(|e| anyhow::anyhow!(e))?;
-        Ok(Pos::new(x, y))
+    fn convert<T: Into<PosUnit>>(x: T, y: T) -> Self {
+        let x = x.into();
+        let y = y.into();
+        Pos::new(x, y)
     }
 
     fn is_diagonal(&self) -> bool {
-        *self != Pos::ZERO
+        self.x != 0 && self.y != 0
     }
 
     fn components(&self) -> [Self; 2] {
-        [self.with_x(0), self.with_y(0)]
+        [self.with_y(0), self.with_x(0)]
     }
 
     fn orthogonal(&self) -> [Self; 2] {

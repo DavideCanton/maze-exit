@@ -26,7 +26,7 @@ impl MazeReader for MazeImageReader {
         for x in 0..image.width() {
             for y in 0..image.height() {
                 let p = image.get_pixel(x, y);
-                let pos = Pos::convert(x, y)?;
+                let pos = Pos::convert(x, y);
 
                 if is_wall(p) {
                     builder = builder.add_wall(pos);

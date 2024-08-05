@@ -13,6 +13,7 @@ pub struct Info {
     pub nodes: u32,
 }
 
+#[derive(Debug)]
 pub struct QueueNode {
     pub heuristic: f64,
     pub node: Pos,
