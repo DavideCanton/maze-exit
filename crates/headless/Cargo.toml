@@ -8,3 +8,8 @@ edition = "2021"
 maze_exit_lib = { path = "../lib" }
 maze_exit_bin_common = { path = "../bin_common" }
 anyhow.workspace = true
+backtrace-on-stack-overflow = { version = "0.3.0", optional = true }
+
+[features]
+default = []
+debug-so = ["dep:backtrace-on-stack-overflow"]

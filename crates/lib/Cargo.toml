@@ -7,4 +7,5 @@ edition = "2021"
 [dependencies]
 itertools = "0.13.0"
 typed-arena = "2.0.2"
+glam = "0.28.0"
 anyhow.workspace = true

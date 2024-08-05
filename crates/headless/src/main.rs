@@ -18,6 +18,11 @@ impl Displayer for HeadlessDisplayer {
 }
 
 fn main() -> Result<()> {
+    #[cfg(feature = "debug-so")]
+    unsafe {
+        backtrace_on_stack_overflow::enable()
+    };
+
     let args = parse_args();
 
     let mut app = App::new(Path::new(&args.img_path).to_owned(), HeadlessDisplayer);

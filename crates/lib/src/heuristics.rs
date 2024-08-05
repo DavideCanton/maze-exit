@@ -19,16 +19,10 @@ impl DiagonalHeuristic {
 
 impl MazeHeuristic for DiagonalHeuristic {
     fn compute_heuristic(&self, node: Pos) -> f64 {
-        let diff = node - self.goal;
-        let dx = diff.x.abs();
-        let dy = diff.y.abs();
+        let diff = (node - self.goal).abs();
 
-        let mut min = dx as f64;
-        let mut max = dy as f64;
-        if min > max {
-            min = dy as f64;
-            max = dx as f64;
-        }
+        let min = diff.min_element() as f64;
+        let max = diff.max_element() as f64;
 
         (min * (SQRT_2 - 1.0) + max) * 1.001
     }

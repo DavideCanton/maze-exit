@@ -4,7 +4,7 @@ use itertools::Itertools;
 
 use crate::algorithm::Child;
 use crate::maze::Maze;
-use crate::position::Pos;
+use crate::position::{MyFuncs, Pos};
 
 pub type Path = Vec<Pos>;
 pub type PathRef<'a> = &'a [Pos];
@@ -42,7 +42,7 @@ impl<'a> JpsGenerator<'a> {
     }
 
     fn prune_neighbors(&self, current: Pos, parent: Pos, vec: &mut Vec<Child>) {
-        let mv = (current - parent).sign();
+        let mv = (current - parent).signum();
         if mv.is_diagonal() {
             self.prune_diagonal(vec, current, mv);
         } else {
@@ -155,7 +155,7 @@ impl ChildrenGenerator for JpsGenerator<'_> {
         let mut cost = 0.0;
 
         for (cur, next) in path.iter().tuple_windows() {
-            let dir = (*next - *cur).sign();
+            let dir = (*next - *cur).signum();
             let cost_unit = if dir.is_diagonal() { SQRT_2 } else { 1.0 };
             let mut cur = *cur;
             while cur != *next {

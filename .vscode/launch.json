@@ -1,0 +1,122 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'maze_exit_lib'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=maze_exit_lib"
+                ],
+                "filter": {
+                    "name": "maze_exit_lib",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'maze_exit_bin_common'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=maze_exit_bin_common"
+                ],
+                "filter": {
+                    "name": "maze_exit_bin_common",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'maze_exit_bin_gui'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=maze_exit_bin_gui",
+                    "--package=maze_exit_bin_gui"
+                ],
+                "filter": {
+                    "name": "maze_exit_bin_gui",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'maze_exit_bin_gui'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=maze_exit_bin_gui",
+                    "--package=maze_exit_bin_gui"
+                ],
+                "filter": {
+                    "name": "maze_exit_bin_gui",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'maze_exit_bin_headless'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=maze_exit_bin_headless",
+                    "--package=maze_exit_bin_headless"
+                ],
+                "filter": {
+                    "name": "maze_exit_bin_headless",
+                    "kind": "bin"
+                }
+            },
+            "args": [
+                "img/lab1.png"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'maze_exit_bin_headless'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=maze_exit_bin_headless",
+                    "--package=maze_exit_bin_headless"
+                ],
+                "filter": {
+                    "name": "maze_exit_bin_headless",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
