@@ -1,4 +1,4 @@
-use std::{path::PathBuf, rc::Rc, time::Instant};
+use std::{path::PathBuf, time::Instant};
 
 use maze_exit_lib::{
     algorithm::a_star,
@@ -27,7 +27,7 @@ impl<D: Displayer> App<D> {
     }
 
     pub fn main(&mut self) -> Result<()> {
-        let maze = Rc::new(self.build_maze()?);
+        let maze = self.build_maze()?;
 
         let heuristic = DiagonalHeuristic::new(maze.goal());
         let start_to_goal = heuristic.compute_heuristic(maze.start());
@@ -35,7 +35,7 @@ impl<D: Displayer> App<D> {
         self.displayer
             .display_image(&maze, start_to_goal, None, None)?;
 
-        let gen = JpsGenerator::new(maze.as_ref());
+        let gen = JpsGenerator::new(&maze);
         let start_time = Instant::now();
 
         let (path, info) = a_star(maze.start(), maze.goal(), &heuristic, &gen, |q| {
