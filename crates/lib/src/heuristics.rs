@@ -2,29 +2,24 @@ use std::f64::consts::SQRT_2;
 
 use crate::position::Pos;
 
-pub trait HeuristicFn {
-    fn compute_heuristic(&self, node: &Pos) -> f64;
-}
-
-pub trait MazeHeuristic: HeuristicFn {
-    fn set_goal(&mut self, goal: &Pos);
+pub trait MazeHeuristic {
+    fn compute_heuristic(&self, node: Pos) -> f64;
 }
 
 #[derive(Default)]
 pub struct DiagonalHeuristic {
-    goal: Option<Pos>,
+    goal: Pos,
 }
 
-impl MazeHeuristic for DiagonalHeuristic {
-    fn set_goal(&mut self, goal: &Pos) {
-        self.goal = Some(*goal);
+impl DiagonalHeuristic {
+    pub fn new(goal: Pos) -> Self {
+        DiagonalHeuristic { goal }
     }
 }
 
-impl HeuristicFn for DiagonalHeuristic {
-    fn compute_heuristic(&self, node: &Pos) -> f64 {
-        let goal = self.goal.expect("No goal set on heuristic");
-        let diff = *node - goal;
+impl MazeHeuristic for DiagonalHeuristic {
+    fn compute_heuristic(&self, node: Pos) -> f64 {
+        let diff = node - self.goal;
         let dx = diff.x.abs();
         let dy = diff.y.abs();
 

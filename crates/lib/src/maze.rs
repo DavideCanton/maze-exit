@@ -21,12 +21,12 @@ impl Maze {
         }
     }
 
-    pub fn start(&self) -> &Pos {
-        &self.start
+    pub fn start(&self) -> Pos {
+        self.start
     }
 
-    pub fn goal(&self) -> &Pos {
-        &self.goal
+    pub fn goal(&self) -> Pos {
+        self.goal
     }
 
     pub fn width(&self) -> u32 {
@@ -37,12 +37,12 @@ impl Maze {
         self.h
     }
 
-    pub fn valid(&self, pos: &Pos) -> bool {
+    pub fn valid(&self, pos: Pos) -> bool {
         pos.x < self.w as PosUnit && pos.y < self.h as PosUnit && pos.x >= 0 && pos.y >= 0
     }
 
     pub fn set(&mut self, pos: Pos, wall: bool) -> Result<(), String> {
-        if self.valid(&pos) {
+        if self.valid(pos) {
             if wall {
                 self.walls.insert(pos);
             } else {
@@ -54,16 +54,16 @@ impl Maze {
         }
     }
 
-    pub fn is_free(&self, pos: &Pos) -> bool {
+    pub fn is_free(&self, pos: Pos) -> bool {
         self.valid(pos) && !self.is_wall(pos)
     }
 
-    pub fn is_wall(&self, pos: &Pos) -> bool {
-        self.valid(pos) && self.walls.contains(pos)
+    pub fn is_wall(&self, pos: Pos) -> bool {
+        self.valid(pos) && self.walls.contains(&pos)
     }
 
-    pub fn walls(&self) -> impl Iterator<Item = &Pos> {
-        self.walls.iter()
+    pub fn walls(&self) -> impl Iterator<Item = Pos> + '_ {
+        self.walls.iter().copied()
     }
 }
 

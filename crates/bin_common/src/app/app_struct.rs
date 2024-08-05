@@ -2,8 +2,8 @@ use std::{path::PathBuf, rc::Rc, time::Instant};
 
 use maze_exit_lib::{
     algorithm::a_star,
-    generator::{JpsGenerator, MazeChildrenGenerator},
-    heuristics::{DiagonalHeuristic, HeuristicFn, MazeHeuristic},
+    generator::{ChildrenGenerator, JpsGenerator},
+    heuristics::{DiagonalHeuristic, MazeHeuristic},
     maze::Maze,
 };
 
@@ -29,8 +29,7 @@ impl<D: Displayer> App<D> {
     pub fn main(&mut self) -> Result<()> {
         let maze = Rc::new(self.build_maze()?);
 
-        let mut heuristic = DiagonalHeuristic::default();
-        heuristic.set_goal(maze.goal());
+        let heuristic = DiagonalHeuristic::new(maze.goal());
         let start_to_goal = heuristic.compute_heuristic(maze.start());
 
         self.displayer
@@ -39,7 +38,7 @@ impl<D: Displayer> App<D> {
         let gen = JpsGenerator::new(maze.as_ref());
         let start_time = Instant::now();
 
-        let (path, info) = a_star(*maze.start(), *maze.goal(), &heuristic, &gen, |q| {
+        let (path, info) = a_star(maze.start(), maze.goal(), &heuristic, &gen, |q| {
             // here we ignore errors on display
             let _ = self
                 .displayer

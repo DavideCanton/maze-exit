@@ -36,7 +36,7 @@ impl GuiDisplayer {
     ) {
         for w in maze.walls() {
             let Pos { x, y } = w;
-            img.put_pixel(*x as u32, *y as u32, Rgba::from([0, 0, 0, 255]));
+            img.put_pixel(x as u32, y as u32, Rgba::from([0, 0, 0, 255]));
         }
 
         if let Some(queue) = queue {
@@ -55,10 +55,10 @@ impl GuiDisplayer {
             }
         }
 
-        let Pos { x, y } = *maze.start();
+        let Pos { x, y } = maze.start();
         img.put_pixel(x as u32, y as u32, Rgba::from([255, 0, 0, 255]));
 
-        let Pos { x, y } = *maze.goal();
+        let Pos { x, y } = maze.goal();
         img.put_pixel(x as u32, y as u32, Rgba::from([0, 255, 0, 255]));
     }
 }

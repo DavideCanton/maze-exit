@@ -5,7 +5,6 @@ use std::path::Path;
 
 use maze_exit_lib::maze::Maze;
 use maze_exit_lib::maze_builder::MazeBuilder;
-use maze_exit_lib::position::Pos;
 
 const THRESHOLD: f64 = 250.0;
 
@@ -26,7 +25,7 @@ impl MazeReader for MazeImageReader {
         for x in 0..image.width() {
             for y in 0..image.height() {
                 let p = image.get_pixel(x, y);
-                let pos = Pos::from(x, y).unwrap();
+                let pos = (x, y).into();
 
                 if is_wall(p) {
                     builder = builder.add_wall(pos);

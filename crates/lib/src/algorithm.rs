@@ -1,11 +1,11 @@
-use std::cmp::{max, Ordering};
-use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::{
+    cmp::{max, Ordering},
+    collections::{BinaryHeap, HashMap, HashSet},
+};
 
 use typed_arena::Arena;
 
-use crate::generator::ChildrenGenerator;
-use crate::heuristics::HeuristicFn;
-use crate::position::Pos;
+use crate::{generator::ChildrenGenerator, heuristics::MazeHeuristic, position::Pos};
 
 #[derive(Default, Debug)]
 pub struct Info {
@@ -77,7 +77,7 @@ pub fn a_star<G, H>(
 ) -> (Option<Vec<Pos>>, Info)
 where
     G: ChildrenGenerator,
-    H: HeuristicFn,
+    H: MazeHeuristic,
 {
     let node_arena = Arena::new();
 
@@ -89,7 +89,7 @@ where
 
     depth.insert(start, 0.0);
 
-    let start_node = QueueNode::new(start, heuristic.compute_heuristic(&start));
+    let start_node = QueueNode::new(start, heuristic.compute_heuristic(start));
     queue.push(node_arena.alloc(start_node));
 
     while !queue.is_empty() {
@@ -116,7 +116,7 @@ where
 
         let parent = parents.get(&current_node);
 
-        for generated in gen.generate_children(&current_node, parent) {
+        for generated in gen.generate_children(current_node, parent.copied()) {
             let successor = generated.node;
 
             if visited.contains(&successor) {
@@ -132,7 +132,7 @@ where
                 depth.insert(successor, successor_depth);
                 let new_node = QueueNode::with_depth(
                     successor,
-                    heuristic.compute_heuristic(&successor),
+                    heuristic.compute_heuristic(successor),
                     successor_depth,
                 );
                 queue.push(node_arena.alloc(new_node));
