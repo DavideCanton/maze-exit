@@ -1,5 +1,5 @@
 use anyhow::Result;
-use maze_exit_bin_common::{parse_args, read_maze, App};
+use maze_exit_bin_common::{find_path, parse_args, read_maze};
 use maze_exit_lib::heuristics::DiagonalHeuristic;
 
 fn main() -> Result<()> {
@@ -12,6 +12,5 @@ fn main() -> Result<()> {
 
     let maze = read_maze(&args.img_path)?;
     let heuristic = Box::new(DiagonalHeuristic::new(&maze));
-    let mut app = App::new(&maze, heuristic);
-    app.main()
+    find_path(&maze, None, heuristic)
 }
