@@ -11,3 +11,4 @@ anyhow.workspace = true
 image.workspace = true
 byteorder.workspace = true
 clap.workspace = true
+zstd.workspace = true

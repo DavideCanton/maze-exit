@@ -30,8 +30,11 @@ fn main() -> Result<(), anyhow::Error> {
 
     let mut file = File::create(out)?;
     write!(file, "{}", MAZE_BINARY_READER_HEADER)?;
-    file.write_u32::<BigEndian>(maze.width())?;
-    file.write_u32::<BigEndian>(maze.height())?;
+
+    let mut encoder = zstd::stream::Encoder::new(file, 0)?.auto_finish();
+
+    encoder.write_u32::<BigEndian>(maze.width())?;
+    encoder.write_u32::<BigEndian>(maze.height())?;
 
     let size = (maze.width() as f64 * maze.height() as f64) / 4.0;
     let mut maze_data = vec![0; size.ceil() as usize];
@@ -43,7 +46,7 @@ fn main() -> Result<(), anyhow::Error> {
     set(&mut maze_data, maze.start(), BinaryReaderCell::Start, &maze);
     set(&mut maze_data, maze.goal(), BinaryReaderCell::Goal, &maze);
 
-    file.write_all(&maze_data)?;
+    encoder.write_all(&maze_data)?;
 
     Ok(())
 }

@@ -58,18 +58,20 @@ impl MazeBinaryReader {
 }
 
 impl MazeReader for MazeBinaryReader {
-    fn read_maze(&self, mut reader: impl Read + Seek) -> Result<Maze> {
+    fn read_maze(&self, reader: impl Read + Seek) -> Result<Maze> {
         let mut builder = MazeBuilder::new();
 
-        let w = reader.read_u32::<BigEndian>()?;
-        let h = reader.read_u32::<BigEndian>()?;
+        let mut decoder = zstd::stream::Decoder::new(reader)?;
+
+        let w = decoder.read_u32::<BigEndian>()?;
+        let h = decoder.read_u32::<BigEndian>()?;
         let mut x = 0;
         let mut y = 0;
         let mut remaining = w * h;
 
         builder = builder.width(w).height(h);
 
-        for b in reader.bytes() {
+        for b in decoder.bytes() {
             for v in read_cell(b?) {
                 if remaining == 0 {
                     break;
