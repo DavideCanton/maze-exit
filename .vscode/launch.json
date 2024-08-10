@@ -57,7 +57,9 @@
                     "kind": "bin"
                 }
             },
-            "args": [],
+            "args": [
+                "img/lab4.bin"
+            ],
             "cwd": "${workspaceFolder}"
         },
         {

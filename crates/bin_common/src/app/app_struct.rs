@@ -1,59 +1,69 @@
-use std::{path::PathBuf, time::Instant};
+use std::{sync::mpsc, time::Instant};
 
 use maze_exit_lib::{
-    algorithm::a_star,
+    algorithm::{a_star, Message},
     generator::{ChildrenGenerator, JpsGenerator},
-    heuristics::{DiagonalHeuristic, MazeHeuristic},
+    heuristics::DiagonalHeuristic,
+    maze::Maze,
 };
 
-use crate::{app::maze_readers::read_maze, display::Displayer};
 use anyhow::Result;
 
-pub struct App<D> {
-    img_path: PathBuf,
-    displayer: D,
+pub struct App<'a> {
+    maze: &'a Maze,
+    channel: Option<mpsc::Sender<Message>>,
+    heuristic: DiagonalHeuristic,
 }
 
-impl<D: Displayer> App<D> {
-    pub fn new(img_path: PathBuf, displayer: D) -> Self {
+impl App<'_> {
+    pub fn new(maze: &Maze, heuristic: DiagonalHeuristic) -> App<'_> {
         App {
-            img_path,
-            displayer,
+            maze,
+            channel: None,
+            heuristic,
+        }
+    }
+
+    pub fn new_channel(
+        maze: &Maze,
+        heuristic: DiagonalHeuristic,
+        channel: mpsc::Sender<Message>,
+    ) -> App<'_> {
+        App {
+            maze,
+            channel: Some(channel),
+            heuristic,
         }
     }
 
     pub fn main(&mut self) -> Result<()> {
-        let maze = read_maze(&self.img_path)?;
+        let maze = self.maze;
 
-        let heuristic = DiagonalHeuristic::new(&maze);
-        let start_to_goal = heuristic.compute_heuristic(maze.start());
-
-        self.displayer
-            .display_image(&maze, start_to_goal, None, None)?;
-
-        let gen = JpsGenerator::new(&maze);
+        let gen = JpsGenerator::new(maze);
         let start_time = Instant::now();
 
-        let (path, info) = a_star(maze.start(), maze.goal(), &heuristic, &gen, |q| {
-            // here we ignore errors on display
-            let _ = self
-                .displayer
-                .display_image(&maze, start_to_goal, None, Some(q));
-        });
+        let (path, info) = a_star(
+            maze.start(),
+            maze.goal(),
+            &self.heuristic,
+            &gen,
+            self.channel.clone(),
+        );
 
         let end_time = Instant::now() - start_time;
 
         match path {
             Some(path) => {
                 let (path, cost) = gen.reconstruct_path(&path);
-                self.displayer
-                    .display_image(&maze, start_to_goal, Some(&path), None)?;
+                let path_len = path.len();
+                if let Some(channel) = &self.channel {
+                    let _ = channel.send(Message::End(path));
+                }
                 println!("Path found!");
-                println!("Length: {}", path.len());
+                println!("Length: {}", path_len);
                 println!("Cost: {}", cost);
                 println!("Time: {}s", end_time.as_secs_f64());
                 println!("{:?}", info);
-                self.displayer.wait_for_end()?;
             }
             None => println!("Path not found"),
         }

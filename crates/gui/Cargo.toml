@@ -8,5 +8,4 @@ edition = "2021"
 maze_exit_lib = { path = "../lib" }
 maze_exit_bin_common = { path = "../bin_common" }
 anyhow.workspace = true
-show-image = { version = "0.14.0", features = ["image"] }
-image.workspace = true
+macroquad = "0.4.5"

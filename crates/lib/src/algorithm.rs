@@ -1,6 +1,7 @@
 use std::{
     cmp::{max, Ordering},
     collections::{BinaryHeap, HashMap, HashSet},
+    sync::mpsc,
 };
 
 use typed_arena::Arena;
@@ -69,12 +70,17 @@ impl Child {
     }
 }
 
+pub enum Message {
+    Enqueued(Pos, f64),
+    End(Vec<Pos>),
+}
+
 pub fn a_star<G, H>(
     start: Pos,
     goal: Pos,
     heuristic: &H,
     gen: &G,
-    mut callback: impl FnMut(&BinaryHeap<&QueueNode>),
+    mut channel: Option<mpsc::Sender<Message>>,
 ) -> (Option<Vec<Pos>>, Info)
 where
     G: ChildrenGenerator,
@@ -94,8 +100,6 @@ where
     queue.push(node_arena.alloc(start_node));
 
     while let Some(current) = queue.pop() {
-        callback(&queue);
-
         info.nodes += 1;
         info.max_length = max(info.max_length, queue.len());
 
@@ -135,6 +139,14 @@ where
                     heuristic.compute_heuristic(successor),
                     successor_depth,
                 );
+                if let Some(ref mut channel) = channel {
+                    if channel
+                        .send(Message::Enqueued(successor, successor_depth))
+                        .is_err()
+                    {
+                        return (None, info);
+                    }
+                }
                 queue.push(node_arena.alloc(new_node));
             }
         }

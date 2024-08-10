@@ -1,21 +1,6 @@
 use anyhow::Result;
-use maze_exit_bin_common::{parse_args, App, Displayer};
-use maze_exit_lib::{algorithm::QueueNode, generator::PathRef, maze::Maze};
-use std::{collections::BinaryHeap, path::Path};
-
-pub struct HeadlessDisplayer;
-
-impl Displayer for HeadlessDisplayer {
-    fn display_image(
-        &mut self,
-        _maze: &Maze,
-        _start_to_goal: f64,
-        _path: Option<PathRef>,
-        _queue: Option<&BinaryHeap<&QueueNode>>,
-    ) -> Result<()> {
-        Ok(())
-    }
-}
+use maze_exit_bin_common::{parse_args, read_maze, App};
+use maze_exit_lib::heuristics::DiagonalHeuristic;
 
 fn main() -> Result<()> {
     #[cfg(feature = "debug-so")]
@@ -25,6 +10,7 @@ fn main() -> Result<()> {
 
     let args = parse_args();
 
-    let mut app = App::new(Path::new(&args.img_path).to_owned(), HeadlessDisplayer);
+    let maze = read_maze(&args.img_path)?;
+    let mut app = App::new(&maze, DiagonalHeuristic::new(&maze));
     app.main()
 }
