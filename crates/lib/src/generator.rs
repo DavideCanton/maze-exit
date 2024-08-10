@@ -159,7 +159,7 @@ impl ChildrenGenerator for JpsGenerator<'_> {
             let cost_unit = if dir.is_diagonal() { SQRT_2 } else { 1.0 };
             let mut cur = *cur;
             while cur != *next {
-                cur = cur + dir;
+                cur += dir;
                 result.push(cur);
                 cost += cost_unit;
             }

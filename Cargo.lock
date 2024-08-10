@@ -322,9 +322,9 @@ checksum = "aaa3a8d9a1ca92e282c96a32d6511b695d7d994d1d102ba85d279f9b2756947f"
 
 [[package]]
 name = "byteorder"
-version = "1.4.3"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
+checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
 
 [[package]]
 name = "byteorder-lite"
@@ -1225,6 +1225,7 @@ name = "maze_exit_bin_common"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "byteorder",
  "clap",
  "image",
  "maze_exit_lib",
@@ -1248,6 +1249,18 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "backtrace-on-stack-overflow",
+ "maze_exit_bin_common",
+ "maze_exit_lib",
+]
+
+[[package]]
+name = "maze_exit_img_to_bin"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "byteorder",
+ "clap",
+ "image",
  "maze_exit_bin_common",
  "maze_exit_lib",
 ]

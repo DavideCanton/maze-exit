@@ -1,25 +1,23 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use image::io::Reader;
 use image::{GenericImageView, Rgba};
 use maze_exit_lib::position::{MyFuncs, Pos};
-use std::path::Path;
+use std::io::{BufReader, Read, Seek};
 
 use maze_exit_lib::maze::Maze;
 use maze_exit_lib::maze_builder::MazeBuilder;
 
+use super::MazeReader;
+
 const THRESHOLD: f64 = 250.0;
 
-pub trait MazeReader {
-    fn read_maze(&self, path: &Path) -> Result<Maze>;
-}
-
-pub struct MazeImageReader;
+pub(crate) struct MazeImageReader;
 
 impl MazeReader for MazeImageReader {
-    fn read_maze(&self, path: &Path) -> Result<Maze> {
-        let mut reader = Reader::open(path)?;
+    fn read_maze(&self, reader: impl Read + Seek) -> Result<Maze> {
+        let mut reader = Reader::new(BufReader::new(reader)).with_guessed_format()?;
         reader.no_limits();
-        let image = reader.decode()?;
+        let image = reader.decode().context("Failed image load")?;
         let mut builder = MazeBuilder::new();
         builder = builder.width(image.width()).height(image.height());
 

@@ -4,13 +4,9 @@ use maze_exit_lib::{
     algorithm::a_star,
     generator::{ChildrenGenerator, JpsGenerator},
     heuristics::{DiagonalHeuristic, MazeHeuristic},
-    maze::Maze,
 };
 
-use crate::{
-    app::image_reader::{MazeImageReader, MazeReader},
-    display::Displayer,
-};
+use crate::{app::maze_readers::read_maze, display::Displayer};
 use anyhow::Result;
 
 pub struct App<D> {
@@ -27,7 +23,7 @@ impl<D: Displayer> App<D> {
     }
 
     pub fn main(&mut self) -> Result<()> {
-        let maze = self.build_maze()?;
+        let maze = read_maze(&self.img_path)?;
 
         let heuristic = DiagonalHeuristic::new(&maze);
         let start_to_goal = heuristic.compute_heuristic(maze.start());
@@ -63,10 +59,5 @@ impl<D: Displayer> App<D> {
         }
 
         Ok(())
-    }
-
-    fn build_maze(&self) -> Result<Maze> {
-        let reader = MazeImageReader;
-        reader.read_maze(&self.img_path)
     }
 }

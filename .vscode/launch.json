@@ -95,7 +95,7 @@
                 }
             },
             "args": [
-                "img/lab1.png"
+                "out.bin"
             ],
             "cwd": "${workspaceFolder}"
         },
@@ -116,6 +116,27 @@
                 }
             },
             "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'maze_exit_img_to_bin'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=maze_exit_img_to_bin",
+                    "--package=maze_exit_img_to_bin"
+                ],
+                "filter": {
+                    "name": "maze_exit_img_to_bin",
+                    "kind": "bin"
+                }
+            },
+            "args": [
+                "img/small.png",
+                "out.bin"
+            ],
             "cwd": "${workspaceFolder}"
         }
     ]
