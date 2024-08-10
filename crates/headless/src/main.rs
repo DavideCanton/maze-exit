@@ -11,6 +11,7 @@ fn main() -> Result<()> {
     let args = parse_args();
 
     let maze = read_maze(&args.img_path)?;
-    let mut app = App::new(&maze, DiagonalHeuristic::new(&maze));
+    let heuristic = Box::new(DiagonalHeuristic::new(&maze));
+    let mut app = App::new(&maze, heuristic);
     app.main()
 }

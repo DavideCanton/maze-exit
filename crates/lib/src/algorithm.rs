@@ -75,16 +75,15 @@ pub enum Message {
     End(Vec<Pos>),
 }
 
-pub fn a_star<G, H>(
+pub fn a_star<G>(
     start: Pos,
     goal: Pos,
-    heuristic: &H,
+    heuristic: &dyn MazeHeuristic,
     gen: &G,
     mut channel: Option<mpsc::Sender<Message>>,
 ) -> (Option<Vec<Pos>>, Info)
 where
     G: ChildrenGenerator,
-    H: MazeHeuristic,
 {
     let node_arena = Arena::new();
 

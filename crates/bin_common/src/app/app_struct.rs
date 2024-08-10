@@ -3,7 +3,7 @@ use std::{sync::mpsc, time::Instant};
 use maze_exit_lib::{
     algorithm::{a_star, Message},
     generator::{ChildrenGenerator, JpsGenerator},
-    heuristics::DiagonalHeuristic,
+    heuristics::MazeHeuristic,
     maze::Maze,
 };
 
@@ -12,11 +12,11 @@ use anyhow::Result;
 pub struct App<'a> {
     maze: &'a Maze,
     channel: Option<mpsc::Sender<Message>>,
-    heuristic: DiagonalHeuristic,
+    heuristic: Box<dyn MazeHeuristic>,
 }
 
 impl App<'_> {
-    pub fn new(maze: &Maze, heuristic: DiagonalHeuristic) -> App<'_> {
+    pub fn new(maze: &Maze, heuristic: Box<dyn MazeHeuristic>) -> App<'_> {
         App {
             maze,
             channel: None,
@@ -26,7 +26,7 @@ impl App<'_> {
 
     pub fn new_channel(
         maze: &Maze,
-        heuristic: DiagonalHeuristic,
+        heuristic: Box<dyn MazeHeuristic>,
         channel: mpsc::Sender<Message>,
     ) -> App<'_> {
         App {
@@ -45,7 +45,7 @@ impl App<'_> {
         let (path, info) = a_star(
             maze.start(),
             maze.goal(),
-            &self.heuristic,
+            self.heuristic.as_ref(),
             &gen,
             self.channel.clone(),
         );

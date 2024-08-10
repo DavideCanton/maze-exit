@@ -40,7 +40,7 @@ async fn main() -> Result<()> {
     let maze = Arc::new(read_maze(args.img_path)?);
     let (tx, rx) = mpsc::channel();
 
-    let heuristic = DiagonalHeuristic::new(&maze);
+    let heuristic = Box::new(DiagonalHeuristic::new(&maze));
     let start_to_goal = heuristic.compute_heuristic(maze.start());
 
     let maze2 = maze.clone();
