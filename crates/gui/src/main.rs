@@ -74,8 +74,8 @@ impl App {
 
         let (tx, rx) = mpsc::channel();
 
-        let maze2 = self.maze.clone();
-        thread::spawn(move || find_path(&maze2, Some(tx), heuristic));
+        let maze = self.maze.clone();
+        thread::spawn(move || find_path(&maze, Some(tx), heuristic));
 
         while !self.end {
             clear_background(WHITE);
