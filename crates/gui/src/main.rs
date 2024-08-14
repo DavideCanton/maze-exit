@@ -134,8 +134,28 @@ impl App {
     }
 
     fn draw_frame(&mut self, rx: &mpsc::Receiver<Message>, start_to_goal: f64) {
-        while let Ok(m) = rx.try_recv() {
-            match m {
+        self.handle_messages(rx);
+
+        self.draw_point(self.maze.start(), RED);
+        self.draw_point(self.maze.goal(), GREEN);
+
+        for (pos, dist) in self.queue.iter().copied() {
+            let ratio = (dist / start_to_goal) as f32;
+            self.draw_point(pos, Color::new(ratio, 1.0 - ratio, 0.0, 1.0));
+        }
+
+        for pos in self.maze.walls() {
+            self.draw_point(pos, BLACK);
+        }
+
+        for pos in self.path.iter().copied() {
+            self.draw_point(pos, BLUE);
+        }
+    }
+
+    fn handle_messages(&mut self, rx: &mpsc::Receiver<Message>) {
+        while let Ok(msg) = rx.try_recv() {
+            match msg {
                 Message::Enqueued(pos, dist) => {
                     self.queue.push((pos, dist));
                 }
@@ -145,23 +165,6 @@ impl App {
                     }
                 }
             }
-        }
-
-        self.draw_point(self.maze.start(), RED);
-        self.draw_point(self.maze.goal(), GREEN);
-
-        for (pos, dist) in &self.queue {
-            let v = (*dist / start_to_goal * 255.0) as u8;
-
-            self.draw_point(*pos, Color::from_rgba(v, 255 - v, 0, 255));
-        }
-
-        for w in self.maze.walls() {
-            self.draw_point(w, BLACK);
-        }
-
-        for p in &self.path {
-            self.draw_point(*p, BLUE);
         }
     }
 }
