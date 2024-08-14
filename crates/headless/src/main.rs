@@ -12,5 +12,5 @@ fn main() -> Result<()> {
 
     let maze = read_maze(&args.img_path)?;
     let heuristic = Box::new(DiagonalHeuristic::new(&maze));
-    find_path(&maze, None, heuristic)
+    find_path(&maze, heuristic, None)
 }

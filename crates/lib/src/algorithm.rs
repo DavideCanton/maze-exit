@@ -80,7 +80,7 @@ pub fn a_star<G>(
     goal: Pos,
     heuristic: &dyn MazeHeuristic,
     gen: &G,
-    mut channel: Option<mpsc::Sender<Message>>,
+    channel: Option<mpsc::Sender<Message>>,
 ) -> (Option<Vec<Pos>>, Info)
 where
     G: ChildrenGenerator,
@@ -138,7 +138,7 @@ where
                     heuristic.compute_heuristic(successor),
                     successor_depth,
                 );
-                if let Some(ref mut channel) = channel {
+                if let Some(ref channel) = channel {
                     if channel
                         .send(Message::Enqueued(successor, successor_depth))
                         .is_err()

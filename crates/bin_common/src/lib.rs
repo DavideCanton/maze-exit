@@ -17,8 +17,8 @@ pub use display::Displayer;
 
 pub fn find_path(
     maze: &Maze,
-    channel: Option<mpsc::Sender<Message>>,
     heuristic: Box<dyn MazeHeuristic>,
+    channel: Option<mpsc::Sender<Message>>,
 ) -> Result<()> {
     let gen = JpsGenerator::new(maze);
     let start_time = Instant::now();
