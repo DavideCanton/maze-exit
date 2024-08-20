@@ -798,6 +798,7 @@ dependencies = [
  "image 0.25.1",
  "maze_exit_bin_common",
  "maze_exit_lib",
+ "rayon",
  "zstd",
 ]
 
