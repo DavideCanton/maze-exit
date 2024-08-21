@@ -24,7 +24,7 @@ pub fn find_path(
     let gen = JpsGenerator::new(maze);
     let start_time = Instant::now();
 
-    let (path, info) = a_star(
+    let info = a_star(
         maze.start(),
         maze.goal(),
         heuristic.as_ref(),
@@ -34,16 +34,17 @@ pub fn find_path(
 
     let end_time = Instant::now() - start_time;
 
-    match path {
-        Some(path) => {
-            let (path, cost) = gen.reconstruct_path(&path);
+    match info.path {
+        Some(ref path) => {
+            let (path, cost) = gen.reconstruct_path(path);
             let path_len = path.len();
             let _ = channel.send(Message::End(path));
             println!("Path found!");
             println!("Length: {}", path_len);
             println!("Cost: {}", cost);
             println!("Time: {}s", end_time.as_secs_f64());
-            println!("{:?}", info);
+            println!("Max queue length: {}", info.max_length);
+            println!("Nodes visited: {}", info.nodes);
         }
         None => println!("Path not found"),
     }

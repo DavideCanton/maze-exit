@@ -2,6 +2,7 @@ use crate::maze::Maze;
 use crate::position::Position;
 use anyhow::{bail, Result};
 use std::collections::HashSet;
+use std::fmt::Debug;
 
 #[derive(Default)]
 pub struct MazeBuilder {
@@ -16,13 +17,9 @@ pub struct MazeBuilder {
 macro_rules! set_or_error {
     ($name: ident, $arg: ty) => {
         pub fn $name(mut self, arg: $arg) -> Self {
-            match self.$name {
-                Some(_) => {
-                    self.errors
-                        .push(format!("{} already set at {}", stringify!($name), arg))
-                }
-                None => self.$name = Some(arg),
-            };
+            if let Err(e) = try_set(&mut self.$name, stringify!($name), arg) {
+                self.errors.push(e);
+            }
             self
         }
     };
@@ -84,6 +81,16 @@ impl MazeBuilder {
         }
         if self.goal.is_none() {
             self.errors.push("goal not set".to_owned());
+        }
+    }
+}
+
+fn try_set<T: Debug>(field: &mut Option<T>, name: &str, arg: T) -> Result<(), String> {
+    match field {
+        Some(_) => Err(format!("{} already set at {:?}", name, arg)),
+        None => {
+            field.replace(arg);
+            Ok(())
         }
     }
 }

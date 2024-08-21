@@ -6,7 +6,9 @@ use std::{
 use typed_arena::Arena;
 
 use crate::{
-    channel::ChannelSender, generator::ChildrenGenerator, heuristics::MazeHeuristic,
+    channel::ChannelSender,
+    generator::{ChildrenGenerator, MazePath},
+    heuristics::MazeHeuristic,
     position::Position,
 };
 
@@ -14,6 +16,7 @@ use crate::{
 pub struct Info {
     pub max_length: usize,
     pub nodes: u32,
+    pub path: Option<MazePath>,
 }
 
 #[derive(Debug)]
@@ -74,7 +77,7 @@ impl Child {
 
 pub enum Message {
     Enqueued(Position, f64),
-    End(Vec<Position>),
+    End(MazePath),
 }
 
 pub fn a_star<G: ChildrenGenerator, C: ChannelSender<Message>>(
@@ -83,7 +86,7 @@ pub fn a_star<G: ChildrenGenerator, C: ChannelSender<Message>>(
     heuristic: &dyn MazeHeuristic,
     gen: &G,
     channel: C,
-) -> (Option<Vec<Position>>, Info) {
+) -> Info {
     let node_arena = Arena::new();
 
     let mut depth = HashMap::new();
@@ -113,7 +116,8 @@ pub fn a_star<G: ChildrenGenerator, C: ChannelSender<Message>>(
             }
             path.push(start);
             path.reverse();
-            return (Some(path), info);
+            info.path.replace(path);
+            return info;
         }
 
         for generated in gen.generate_children(current_node, parents.get(&current_node).copied()) {
@@ -142,7 +146,7 @@ pub fn a_star<G: ChildrenGenerator, C: ChannelSender<Message>>(
                     .send(Message::Enqueued(successor, successor_depth))
                     .is_err()
                 {
-                    return (None, info);
+                    return info;
                 }
 
                 queue.push(node_arena.alloc(new_node));
@@ -150,5 +154,5 @@ pub fn a_star<G: ChildrenGenerator, C: ChannelSender<Message>>(
         }
     }
 
-    (None, info)
+    info
 }

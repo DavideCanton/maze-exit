@@ -6,12 +6,12 @@ use crate::algorithm::Child;
 use crate::maze::Maze;
 use crate::position::{PosFunctions, Position};
 
-pub type Path = Vec<Position>;
-pub type PathRef<'a> = &'a [Position];
+pub type MazePath = Vec<Position>;
+pub type MazePathRef<'a> = &'a [Position];
 
 pub trait ChildrenGenerator {
     fn generate_children(&self, current: Position, parent: Option<Position>) -> Vec<Child>;
-    fn reconstruct_path(&self, path: PathRef) -> (Path, f64);
+    fn reconstruct_path(&self, path: MazePathRef) -> (MazePath, f64);
 }
 
 pub struct JpsGenerator<'a> {
@@ -146,7 +146,7 @@ impl ChildrenGenerator for JpsGenerator<'_> {
         }
     }
 
-    fn reconstruct_path(&self, path: PathRef) -> (Path, f64) {
+    fn reconstruct_path(&self, path: MazePathRef) -> (MazePath, f64) {
         if path.is_empty() {
             return (Vec::new(), 0.0);
         }
