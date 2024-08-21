@@ -16,7 +16,7 @@ use macroquad::{
 use maze_exit_bin_common::{find_path, parse_args, print_info, read_maze, Args};
 use maze_exit_lib::{
     algorithm::Message,
-    channel::sync_channel,
+    channel::{channel, sync_channel, ChannelSender},
     heuristics::{DiagonalHeuristic, MazeHeuristic},
     maze::Maze,
     position::Position,
@@ -76,10 +76,28 @@ impl App {
         let heuristic = Box::new(DiagonalHeuristic::new(&self.maze));
         let start_to_goal = heuristic.compute_heuristic(self.maze.start());
 
-        let (tx, rx) = sync_channel(self.buffer_size as usize);
-
         let maze = self.maze.clone();
-        thread::spawn(move || find_path(&maze, heuristic, tx));
+
+        fn start(
+            maze: Arc<Maze>,
+            heuristic: Box<dyn MazeHeuristic + Send>,
+            tx: impl ChannelSender<Message> + Send + 'static,
+        ) {
+            thread::spawn(move || find_path(&maze, heuristic, tx));
+        }
+
+        let rx = match self.buffer_size {
+            0 => {
+                let (tx, rx) = channel();
+                start(maze, heuristic, tx);
+                rx
+            }
+            n => {
+                let (tx, rx) = sync_channel(n as usize);
+                start(maze, heuristic, tx);
+                rx
+            }
+        };
 
         while !self.end {
             clear_background(WHITE);
@@ -180,7 +198,7 @@ impl App {
 struct GuiArgs {
     #[command(flatten)]
     common: Args,
-    #[arg(short = 's', long = "buffer_size", default_value_t = 1)]
+    #[arg(short = 's', long = "buffer_size", default_value_t = 0)]
     buffer_size: u8,
 }
 
