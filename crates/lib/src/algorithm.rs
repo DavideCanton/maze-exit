@@ -1,12 +1,13 @@
 use std::{
     cmp::{max, Ordering},
     collections::{BinaryHeap, HashMap, HashSet},
-    sync::mpsc,
 };
 
 use typed_arena::Arena;
 
-use crate::{generator::ChildrenGenerator, heuristics::MazeHeuristic, position::Pos};
+use crate::{
+    channel::ChannelSender, generator::ChildrenGenerator, heuristics::MazeHeuristic, position::Pos,
+};
 
 #[derive(Default, Debug)]
 pub struct Info {
@@ -75,16 +76,13 @@ pub enum Message {
     End(Vec<Pos>),
 }
 
-pub fn a_star<G>(
+pub fn a_star<G: ChildrenGenerator, C: ChannelSender<Message>>(
     start: Pos,
     goal: Pos,
     heuristic: &dyn MazeHeuristic,
     gen: &G,
-    channel: Option<mpsc::Sender<Message>>,
-) -> (Option<Vec<Pos>>, Info)
-where
-    G: ChildrenGenerator,
-{
+    channel: C,
+) -> (Option<Vec<Pos>>, Info) {
     let node_arena = Arena::new();
 
     let mut depth = HashMap::new();
@@ -138,14 +136,14 @@ where
                     heuristic.compute_heuristic(successor),
                     successor_depth,
                 );
-                if let Some(ref channel) = channel {
-                    if channel
-                        .send(Message::Enqueued(successor, successor_depth))
-                        .is_err()
-                    {
-                        return (None, info);
-                    }
+
+                if channel
+                    .send(Message::Enqueued(successor, successor_depth))
+                    .is_err()
+                {
+                    return (None, info);
                 }
+
                 queue.push(node_arena.alloc(new_node));
             }
         }

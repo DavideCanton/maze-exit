@@ -4,6 +4,7 @@ use std::{
 };
 
 use anyhow::Result;
+use clap::{command, Parser};
 use macroquad::{
     camera::{set_camera, Camera2D},
     color::{Color, BLACK, WHITE},
@@ -12,9 +13,10 @@ use macroquad::{
     shapes::draw_rectangle,
     window::{clear_background, next_frame, Conf},
 };
-use maze_exit_bin_common::{find_path, parse_args, read_maze};
+use maze_exit_bin_common::{find_path, parse_args, read_maze, Args};
 use maze_exit_lib::{
     algorithm::Message,
+    channel::sync_channel,
     heuristics::{DiagonalHeuristic, MazeHeuristic},
     maze::Maze,
     position::Pos,
@@ -45,10 +47,11 @@ struct App {
     camera: Camera2D,
     original_zoom: Vec2,
     move_offset: f32,
+    buffer_size: u8,
 }
 
 impl App {
-    fn new(maze: Maze) -> Self {
+    fn new(maze: Maze, buffer_size: u8) -> Self {
         let camera = Camera2D::from_display_rect(Rect::new(
             0.0,
             0.0,
@@ -65,6 +68,7 @@ impl App {
             camera,
             original_zoom,
             move_offset: 1.0,
+            buffer_size,
         }
     }
 
@@ -72,10 +76,10 @@ impl App {
         let heuristic = Box::new(DiagonalHeuristic::new(&self.maze));
         let start_to_goal = heuristic.compute_heuristic(self.maze.start());
 
-        let (tx, rx) = mpsc::channel();
+        let (tx, rx) = sync_channel(self.buffer_size as usize);
 
         let maze = self.maze.clone();
-        thread::spawn(move || find_path(&maze, heuristic, Some(tx)));
+        thread::spawn(move || find_path(&maze, heuristic, tx));
 
         while !self.end {
             clear_background(WHITE);
@@ -169,12 +173,20 @@ impl App {
     }
 }
 
+#[derive(Parser, Debug)]
+struct GuiArgs {
+    #[command(flatten)]
+    common: Args,
+    #[arg(short = 's', long = "buffer_size", default_value_t = 1)]
+    buffer_size: u8,
+}
+
 #[macroquad::main(window_conf)]
 async fn main() -> Result<()> {
-    let args = parse_args();
-    let maze = read_maze(args.img_path)?;
+    let args: GuiArgs = parse_args();
+    let maze = read_maze(args.common.img_path)?;
 
-    let app = App::new(maze);
+    let app = App::new(maze, args.buffer_size);
     app.main().await;
 
     Ok(())

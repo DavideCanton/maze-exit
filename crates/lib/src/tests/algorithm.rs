@@ -1,6 +1,6 @@
 use crate::{
-    algorithm::a_star, generator::JpsGenerator, heuristics::DiagonalHeuristic,
-    maze_builder::MazeBuilder, position::Pos,
+    algorithm::a_star, channel::noop_sender, generator::JpsGenerator,
+    heuristics::DiagonalHeuristic, maze_builder::MazeBuilder, position::Pos,
 };
 
 #[test]
@@ -18,7 +18,7 @@ fn test_find_path() {
     let heuristic = DiagonalHeuristic::new(&maze);
     let gen = JpsGenerator::new(&maze);
 
-    let (path, info) = a_star(start, goal, &heuristic, &gen, None);
+    let (path, info) = a_star(start, goal, &heuristic, &gen, noop_sender());
 
     assert!(path.is_some());
     assert_eq!(

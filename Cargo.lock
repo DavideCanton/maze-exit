@@ -773,6 +773,7 @@ name = "maze_exit_bin_gui"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "clap",
  "macroquad",
  "maze_exit_bin_common",
  "maze_exit_lib",

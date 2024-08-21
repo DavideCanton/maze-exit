@@ -1,11 +1,12 @@
 mod app;
 mod display;
 
-use std::{sync::mpsc, time::Instant};
+use std::time::Instant;
 
 use anyhow::Result;
 use maze_exit_lib::{
     algorithm::{a_star, Message},
+    channel::ChannelSender,
     generator::{ChildrenGenerator, JpsGenerator},
     heuristics::MazeHeuristic,
     maze::Maze,
@@ -18,7 +19,7 @@ pub use display::Displayer;
 pub fn find_path(
     maze: &Maze,
     heuristic: Box<dyn MazeHeuristic>,
-    channel: Option<mpsc::Sender<Message>>,
+    channel: impl ChannelSender<Message>,
 ) -> Result<()> {
     let gen = JpsGenerator::new(maze);
     let start_time = Instant::now();
@@ -37,9 +38,7 @@ pub fn find_path(
         Some(path) => {
             let (path, cost) = gen.reconstruct_path(&path);
             let path_len = path.len();
-            if let Some(channel) = &channel {
-                let _ = channel.send(Message::End(path));
-            }
+            let _ = channel.send(Message::End(path));
             println!("Path found!");
             println!("Length: {}", path_len);
             println!("Cost: {}", cost);

@@ -8,4 +8,5 @@ edition = "2021"
 maze_exit_lib = { path = "../lib" }
 maze_exit_bin_common = { path = "../bin_common" }
 anyhow.workspace = true
+clap.workspace = true
 macroquad = "0.4.5"

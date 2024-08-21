@@ -11,6 +11,6 @@ pub struct Args {
     pub img_path: String,
 }
 
-pub fn parse_args() -> Args {
-    Args::parse()
+pub fn parse_args<T: Parser>() -> T {
+    T::parse()
 }

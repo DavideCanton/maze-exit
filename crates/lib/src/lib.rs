@@ -1,4 +1,5 @@
 pub mod algorithm;
+pub mod channel;
 pub mod generator;
 pub mod heuristics;
 pub mod maze;
