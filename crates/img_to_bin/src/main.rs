@@ -1,28 +1,16 @@
+use anyhow::Result;
 use std::{
     fs::{create_dir, metadata, File},
-    io::{ErrorKind, Write},
+    io::ErrorKind,
     path::{Path, PathBuf},
 };
 
-use byteorder::{BigEndian, WriteBytesExt};
 use clap::{Parser, Subcommand};
-use maze_exit_bin_common::{read_maze, BinaryReaderCell, MAZE_BINARY_READER_HEADER};
-use maze_exit_lib::{maze::Maze, position::Position};
 use rayon::prelude::*;
-use zstd::Encoder;
 
-use BinaryReaderCell::*;
+use maze_exit_bin_common::{read_maze, BinaryMazeWriter, MazeWriter};
 
 const BINARY_EXT: &str = "bin";
-
-fn set(vec: &mut [u8], pos: Position, cell: BinaryReaderCell, maze: &Maze) {
-    let index = (pos.y as usize) * (maze.width() as usize) + (pos.x as usize);
-
-    let i = index / 4;
-    let r = index % 4;
-
-    vec[i] |= u8::from(cell) << ((3 - r) * 2);
-}
 
 #[derive(Parser, Debug)]
 #[command(author = "Davide C. <davide.canton5@gmail.com>", version = "1.0")]
@@ -37,32 +25,6 @@ enum Commands {
     Dir { src: PathBuf, dst: Option<PathBuf> },
 }
 
-fn translate_single_file(img: &Path, out: &Path) -> Result<(), anyhow::Error> {
-    let maze = read_maze(img)?;
-
-    let mut file = File::create(out)?;
-    write!(file, "{}", MAZE_BINARY_READER_HEADER)?;
-
-    let mut encoder = Encoder::new(file, 0)?.auto_finish();
-
-    encoder.write_u32::<BigEndian>(maze.width())?;
-    encoder.write_u32::<BigEndian>(maze.height())?;
-
-    let size = (maze.width() as f64 * maze.height() as f64) / 4.0;
-    let mut maze_data = vec![0; size.ceil() as usize];
-
-    for w in maze.walls() {
-        set(&mut maze_data, w, Wall, &maze);
-    }
-
-    set(&mut maze_data, maze.start(), Start, &maze);
-    set(&mut maze_data, maze.goal(), Goal, &maze);
-
-    encoder.write_all(&maze_data)?;
-
-    Ok(())
-}
-
 fn main() -> Result<(), anyhow::Error> {
     let args = Args::parse();
 
@@ -70,6 +32,12 @@ fn main() -> Result<(), anyhow::Error> {
         Commands::File { src, dst } => handle_file(src, dst),
         Commands::Dir { src, dst } => handle_dir(src, dst),
     }
+}
+
+fn translate_single_file(fp: &Path, dst: &Path) -> Result<()> {
+    let maze = read_maze(fp)?;
+    let writer = File::open(dst)?;
+    BinaryMazeWriter.write_maze(&maze, writer)
 }
 
 fn handle_dir(src: PathBuf, dst: Option<PathBuf>) -> Result<(), anyhow::Error> {

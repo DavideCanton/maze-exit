@@ -1,4 +1,5 @@
 use std::{
+    fs::File,
     sync::{mpsc, Arc},
     thread,
 };
@@ -13,7 +14,10 @@ use macroquad::{
     shapes::draw_rectangle,
     window::{clear_background, next_frame, Conf},
 };
-use maze_exit_bin_common::{find_path, parse_args, print_info, read_maze, Args};
+use maze_exit_bin_common::{
+    find_path, parse_args, print_info, read_maze, Args, ImageMazeWriter, MazeWriter,
+    MazeWriterWithPath,
+};
 use maze_exit_lib::{
     algorithm::Message,
     channel::{channel, sync_channel, ChannelSender},
@@ -42,12 +46,13 @@ const BLUE: Color = Color::new(0.0, 0.0, 1.0, 1.0);
 struct App {
     maze: Arc<Maze>,
     queue: Vec<(Position, f64)>,
-    path: Vec<Position>,
+    path: Option<Vec<Position>>,
     end: bool,
     camera: Camera2D,
     original_zoom: Vec2,
     move_offset: f32,
     buffer_size: u8,
+    solved: bool,
 }
 
 impl App {
@@ -63,12 +68,13 @@ impl App {
         Self {
             maze: Arc::new(maze),
             queue: Vec::new(),
-            path: Vec::new(),
+            path: None,
             end: false,
             camera,
             original_zoom,
             move_offset: 1.0,
             buffer_size,
+            solved: false,
         }
     }
 
@@ -144,6 +150,11 @@ impl App {
                 KeyCode::C => {
                     self.camera.offset = Vec2::ZERO;
                 }
+                KeyCode::S => {
+                    if self.solved {
+                        let _ = self.save_img();
+                    }
+                }
                 _ => (),
             }
         }
@@ -170,8 +181,10 @@ impl App {
             self.draw_point(pos, BLACK);
         }
 
-        for pos in self.path.iter().copied() {
-            self.draw_point(pos, BLUE);
+        if let Some(ref path) = self.path {
+            for pos in path.iter().copied() {
+                self.draw_point(pos, BLUE);
+            }
         }
     }
 
@@ -182,15 +195,30 @@ impl App {
                     self.queue.push((pos, dist));
                 }
                 Message::End(info) => {
-                    print_info(&info);
-                    if let Some(path_info) = info.path {
-                        if self.path.is_empty() {
-                            self.path.extend(path_info.path);
+                    if !self.solved {
+                        self.solved = true;
+                        print_info(&info);
+
+                        if let Some(path) = info.path {
+                            self.path.replace(path.path);
                         }
                     }
                 }
             }
         }
+    }
+
+    fn save_img(&self) -> Result<()> {
+        let writer = File::create("maze_path.png").unwrap();
+        match &self.path {
+            None => {
+                ImageMazeWriter.write_maze(&self.maze, writer)?;
+            }
+            Some(path) => {
+                ImageMazeWriter.write_maze_with_path(&self.maze, path, writer)?;
+            }
+        }
+        Ok(())
     }
 }
 

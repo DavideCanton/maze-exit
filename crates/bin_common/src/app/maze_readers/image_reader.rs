@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use image::io::Reader;
-use image::{GenericImageView, Rgba};
+use image::Rgb;
 use maze_exit_lib::position::{PosFunctions, Position};
 use std::io::{BufReader, Read, Seek};
 
@@ -17,13 +17,13 @@ impl MazeReader for MazeImageReader {
     fn read_maze(&self, reader: impl Read + Seek) -> Result<Maze> {
         let mut reader = Reader::new(BufReader::new(reader)).with_guessed_format()?;
         reader.no_limits();
-        let image = reader.decode().context("Failed image load")?;
+        let image = reader.decode().context("Failed image load")?.to_rgb8();
         let mut builder = MazeBuilder::new();
         builder = builder.width(image.width()).height(image.height());
 
         for x in 0..image.width() {
             for y in 0..image.height() {
-                let p = image.get_pixel(x, y);
+                let p = *image.get_pixel(x, y);
                 let pos = Position::try_convert(x, y)?;
 
                 if is_wall(p) {
@@ -40,21 +40,21 @@ impl MazeReader for MazeImageReader {
     }
 }
 
-fn is_goal(pixel: Rgba<u8>) -> bool {
-    color_difference(pixel.0, [0, 255, 0, 0]) < THRESHOLD
+fn is_goal(pixel: Rgb<u8>) -> bool {
+    color_difference(pixel.0, [0, 255, 0]) < THRESHOLD
 }
 
-fn is_start(pixel: Rgba<u8>) -> bool {
-    color_difference(pixel.0, [255, 0, 0, 0]) < THRESHOLD
+fn is_start(pixel: Rgb<u8>) -> bool {
+    color_difference(pixel.0, [255, 0, 0]) < THRESHOLD
 }
 
-fn is_wall(pixel: Rgba<u8>) -> bool {
-    color_difference(pixel.0, [0, 0, 0, 0]) < THRESHOLD
+fn is_wall(pixel: Rgb<u8>) -> bool {
+    color_difference(pixel.0, [0, 0, 0]) < THRESHOLD
 }
 
-fn color_difference(p1: [u8; 4], p2: [u8; 4]) -> f64 {
-    let [r1, g1, b1, _] = p1;
-    let [r2, g2, b2, _] = p2;
+fn color_difference(p1: [u8; 3], p2: [u8; 3]) -> f64 {
+    let [r1, g1, b1] = p1;
+    let [r2, g2, b2] = p2;
     let r_mean = (r1 as f64 + r2 as f64) / 2.0;
 
     let r = r1 as f64 - r2 as f64;
@@ -78,16 +78,16 @@ mod tests {
 
     #[test]
     fn detect_red() {
-        let pixel = Rgba::from([237u8, 28, 36, 0]);
+        let pixel = Rgb::from([237u8, 28, 36]);
         assert!(is_start(pixel));
 
-        let pixel = Rgba::from([10u8, 28, 36, 0]);
+        let pixel = Rgb::from([10u8, 28, 36]);
         assert!(!is_start(pixel));
     }
 
     #[test]
     fn detect_green() {
-        let pixel = Rgba::from([34u8, 177, 76, 0]);
+        let pixel = Rgb::from([34u8, 177, 76]);
         assert!(is_goal(pixel));
     }
 }

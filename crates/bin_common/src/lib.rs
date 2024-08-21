@@ -14,6 +14,9 @@ use maze_exit_lib::{
 
 pub use app::args::{parse_args, Args};
 pub use app::maze_readers::{read_maze, BinaryReaderCell, MAZE_BINARY_READER_HEADER};
+pub use app::maze_writers::{
+    binary_writer::BinaryMazeWriter, image_writer::ImageMazeWriter, MazeWriter, MazeWriterWithPath,
+};
 pub use display::Displayer;
 
 pub fn find_path(
