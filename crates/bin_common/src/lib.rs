@@ -38,16 +38,19 @@ pub fn find_path(
         Some(ref path) => {
             let (path, cost) = gen.reconstruct_path(path);
             let path_len = path.len();
-            let _ = channel.send(Message::End(path));
             println!("Path found!");
             println!("Length: {}", path_len);
             println!("Cost: {}", cost);
-            println!("Time: {}s", end_time.as_secs_f64());
-            println!("Max queue length: {}", info.max_length);
-            println!("Nodes visited: {}", info.nodes);
         }
-        None => println!("Path not found"),
+        None => {
+            println!("Path not found")
+        }
     }
+
+    let _ = channel.send(Message::End(info.path));
+    println!("Time: {}s", end_time.as_secs_f64());
+    println!("Max queue length: {}", info.max_length);
+    println!("Nodes visited: {}", info.nodes);
 
     Ok(())
 }

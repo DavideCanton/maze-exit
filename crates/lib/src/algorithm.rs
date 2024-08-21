@@ -77,7 +77,7 @@ impl Child {
 
 pub enum Message {
     Enqueued(Position, f64),
-    End(MazePath),
+    End(Option<MazePath>),
 }
 
 pub fn a_star<G: ChildrenGenerator, C: ChannelSender<Message>>(

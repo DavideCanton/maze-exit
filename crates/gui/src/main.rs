@@ -163,11 +163,12 @@ impl App {
                 Message::Enqueued(pos, dist) => {
                     self.queue.push((pos, dist));
                 }
-                Message::End(p) => {
+                Message::End(Some(p)) => {
                     if self.path.is_empty() {
                         self.path.extend(p);
                     }
                 }
+                _ => (),
             }
         }
     }

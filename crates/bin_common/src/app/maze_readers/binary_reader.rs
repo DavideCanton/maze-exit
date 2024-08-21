@@ -47,8 +47,7 @@ impl MazeBinaryReader {
     pub(crate) fn check(&self, reader: &mut (impl Read + Seek)) -> Result<bool> {
         let mut buf = [0; HEADER.len()];
         reader.read_exact(&mut buf)?;
-        let header = String::from_utf8_lossy(&buf);
-        if header != HEADER {
+        if buf != HEADER.as_bytes() {
             reader.rewind()?;
             Ok(false)
         } else {
