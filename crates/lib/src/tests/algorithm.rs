@@ -1,12 +1,12 @@
 use crate::{
     algorithm::a_star, channel::noop_sender, generator::JpsGenerator,
-    heuristics::DiagonalHeuristic, maze_builder::MazeBuilder, position::Pos,
+    heuristics::DiagonalHeuristic, maze_builder::MazeBuilder, position::Position,
 };
 
 #[test]
 fn test_find_path() {
-    let start = Pos::new(0, 0);
-    let goal = Pos::new(9, 9);
+    let start = Position::new(0, 0);
+    let goal = Position::new(9, 9);
     let maze = MazeBuilder::new()
         .start(start)
         .goal(goal)
@@ -23,7 +23,11 @@ fn test_find_path() {
     assert!(path.is_some());
     assert_eq!(
         path.unwrap(),
-        &[Pos::new(0, 0), Pos::new(1, 1), Pos::new(9, 9)]
+        &[
+            Position::new(0, 0),
+            Position::new(1, 1),
+            Position::new(9, 9)
+        ]
     );
 
     assert!(info.max_length > 0);

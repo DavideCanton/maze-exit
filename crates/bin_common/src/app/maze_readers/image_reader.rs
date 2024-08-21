@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use image::io::Reader;
 use image::{GenericImageView, Rgba};
-use maze_exit_lib::position::{MyFuncs, Pos};
+use maze_exit_lib::position::{PosFunctions, Position};
 use std::io::{BufReader, Read, Seek};
 
 use maze_exit_lib::maze::Maze;
@@ -24,7 +24,7 @@ impl MazeReader for MazeImageReader {
         for x in 0..image.width() {
             for y in 0..image.height() {
                 let p = image.get_pixel(x, y);
-                let pos = Pos::try_convert(x, y)?;
+                let pos = Position::try_convert(x, y)?;
 
                 if is_wall(p) {
                     builder = builder.add_wall(pos);

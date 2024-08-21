@@ -3,7 +3,7 @@ use byteorder::{BigEndian, ReadBytesExt};
 use maze_exit_lib::{
     maze::Maze,
     maze_builder::MazeBuilder,
-    position::{MyFuncs, Pos},
+    position::{PosFunctions, Position},
 };
 use std::{
     io::{Read, Seek},
@@ -77,7 +77,7 @@ impl MazeReader for MazeBinaryReader {
                     break;
                 }
                 remaining -= 1;
-                let pos = Pos::try_convert(x, y)?;
+                let pos = Position::try_convert(x, y)?;
                 match v {
                     Cell::Wall => builder = builder.add_wall(pos),
                     Cell::Start => builder = builder.start(pos),

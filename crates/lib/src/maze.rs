@@ -1,17 +1,17 @@
 use std::collections::HashSet;
 
-use crate::position::{Pos, PosUnit};
+use crate::position::{Position, PositionUnit};
 
 pub struct Maze {
-    walls: HashSet<Pos>,
+    walls: HashSet<Position>,
     w: u32,
     h: u32,
-    start: Pos,
-    goal: Pos,
+    start: Position,
+    goal: Position,
 }
 
 impl Maze {
-    pub fn new(width: u32, height: u32, start: Pos, goal: Pos) -> Self {
+    pub fn new(width: u32, height: u32, start: Position, goal: Position) -> Self {
         Maze {
             w: width,
             h: height,
@@ -21,11 +21,11 @@ impl Maze {
         }
     }
 
-    pub fn start(&self) -> Pos {
+    pub fn start(&self) -> Position {
         self.start
     }
 
-    pub fn goal(&self) -> Pos {
+    pub fn goal(&self) -> Position {
         self.goal
     }
 
@@ -37,11 +37,11 @@ impl Maze {
         self.h
     }
 
-    pub fn valid(&self, pos: Pos) -> bool {
-        pos.x < self.w as PosUnit && pos.y < self.h as PosUnit && pos.x >= 0 && pos.y >= 0
+    pub fn valid(&self, pos: Position) -> bool {
+        pos.x < self.w as PositionUnit && pos.y < self.h as PositionUnit && pos.x >= 0 && pos.y >= 0
     }
 
-    pub fn set(&mut self, pos: Pos, wall: bool) -> Result<(), String> {
+    pub fn set(&mut self, pos: Position, wall: bool) -> Result<(), String> {
         if self.valid(pos) {
             if wall {
                 self.walls.insert(pos);
@@ -54,15 +54,15 @@ impl Maze {
         }
     }
 
-    pub fn is_free(&self, pos: Pos) -> bool {
+    pub fn is_free(&self, pos: Position) -> bool {
         self.valid(pos) && !self.is_wall(pos)
     }
 
-    pub fn is_wall(&self, pos: Pos) -> bool {
+    pub fn is_wall(&self, pos: Position) -> bool {
         self.valid(pos) && self.walls.contains(&pos)
     }
 
-    pub fn walls(&self) -> impl Iterator<Item = Pos> + '_ {
+    pub fn walls(&self) -> impl Iterator<Item = Position> + '_ {
         self.walls.iter().copied()
     }
 }

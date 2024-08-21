@@ -4,13 +4,13 @@ use itertools::Itertools;
 
 use crate::algorithm::Child;
 use crate::maze::Maze;
-use crate::position::{MyFuncs, Pos};
+use crate::position::{PosFunctions, Position};
 
-pub type Path = Vec<Pos>;
-pub type PathRef<'a> = &'a [Pos];
+pub type Path = Vec<Position>;
+pub type PathRef<'a> = &'a [Position];
 
 pub trait ChildrenGenerator {
-    fn generate_children(&self, current: Pos, parent: Option<Pos>) -> Vec<Child>;
+    fn generate_children(&self, current: Position, parent: Option<Position>) -> Vec<Child>;
     fn reconstruct_path(&self, path: PathRef) -> (Path, f64);
 }
 
@@ -23,7 +23,7 @@ impl<'a> JpsGenerator<'a> {
         JpsGenerator { maze }
     }
 
-    fn natural_neighbors(&self, current: Pos) -> Vec<Child> {
+    fn natural_neighbors(&self, current: Position) -> Vec<Child> {
         let pos = current;
         vec![
             (pos.up(), 1.0),
@@ -41,7 +41,7 @@ impl<'a> JpsGenerator<'a> {
         .collect()
     }
 
-    fn prune_neighbors(&self, current: Pos, parent: Pos, vec: &mut Vec<Child>) {
+    fn prune_neighbors(&self, current: Position, parent: Position, vec: &mut Vec<Child>) {
         let mv = (current - parent).signum();
         if mv.is_diagonal() {
             self.prune_diagonal(vec, current, mv);
@@ -50,7 +50,7 @@ impl<'a> JpsGenerator<'a> {
         }
     }
 
-    fn do_jump(&self, current: Pos, vec: Vec<Child>) -> Vec<Child> {
+    fn do_jump(&self, current: Position, vec: Vec<Child>) -> Vec<Child> {
         vec.into_iter()
             .filter_map(|p| {
                 self.jump_rec(current, p.node - current, self.maze.goal())
@@ -59,28 +59,33 @@ impl<'a> JpsGenerator<'a> {
             .collect()
     }
 
-    fn prune_diagonal(&self, vec: &mut Vec<Child>, current: Pos, mv: Pos) {
+    fn prune_diagonal(&self, vec: &mut Vec<Child>, current: Position, mv: Position) {
         let mut pruned_list = vec![current + mv];
         pruned_list.extend(mv.components().iter().map(|&p| current + p));
         pruned_list.extend_from_slice(&self.compute_forced_diagonal(current - mv, mv));
         vec.retain(|p| pruned_list.contains(&p.node));
     }
 
-    fn prune_straight(&self, vec: &mut Vec<Child>, current: Pos, mv: Pos) {
+    fn prune_straight(&self, vec: &mut Vec<Child>, current: Position, mv: Position) {
         let mut pruned_list = vec![current + mv];
         pruned_list.extend_from_slice(&self.compute_forced_straight(current, mv));
         vec.retain(|p| pruned_list.contains(&p.node))
     }
 
-    fn compute_forced_straight(&self, current: Pos, mv: Pos) -> Vec<Pos> {
+    fn compute_forced_straight(&self, current: Position, mv: Position) -> Vec<Position> {
         self.compute_forced(&mv.orthogonal(), current, Some(mv))
     }
 
-    fn compute_forced_diagonal(&self, current: Pos, mv: Pos) -> Vec<Pos> {
+    fn compute_forced_diagonal(&self, current: Position, mv: Position) -> Vec<Position> {
         self.compute_forced(&mv.components(), current, None)
     }
 
-    fn compute_forced(&self, positions: &[Pos], current: Pos, add: Option<Pos>) -> Vec<Pos> {
+    fn compute_forced(
+        &self,
+        positions: &[Position],
+        current: Position,
+        add: Option<Position>,
+    ) -> Vec<Position> {
         positions
             .iter()
             .filter_map(|&dir| {
@@ -90,7 +95,7 @@ impl<'a> JpsGenerator<'a> {
             .collect()
     }
 
-    fn jump_rec(&self, current: Pos, direction: Pos, goal: Pos) -> Option<Pos> {
+    fn jump_rec(&self, current: Position, direction: Position, goal: Position) -> Option<Position> {
         let next = current + direction;
         if !self.maze.is_free(next) {
             return None;
@@ -129,7 +134,7 @@ impl<'a> JpsGenerator<'a> {
 }
 
 impl ChildrenGenerator for JpsGenerator<'_> {
-    fn generate_children(&self, current: Pos, parent: Option<Pos>) -> Vec<Child> {
+    fn generate_children(&self, current: Position, parent: Option<Position>) -> Vec<Child> {
         let mut natural_neighbors = self.natural_neighbors(current);
 
         match parent {

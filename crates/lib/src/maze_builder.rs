@@ -1,13 +1,13 @@
 use crate::maze::Maze;
-use crate::position::Pos;
+use crate::position::Position;
 use anyhow::{bail, Result};
 use std::collections::HashSet;
 
 #[derive(Default)]
 pub struct MazeBuilder {
-    walls: HashSet<Pos>,
-    start: Option<Pos>,
-    goal: Option<Pos>,
+    walls: HashSet<Position>,
+    start: Option<Position>,
+    goal: Option<Position>,
     errors: Vec<String>,
     width: Option<u32>,
     height: Option<u32>,
@@ -35,10 +35,10 @@ impl MazeBuilder {
 
     set_or_error!(width, u32);
     set_or_error!(height, u32);
-    set_or_error!(start, Pos);
-    set_or_error!(goal, Pos);
+    set_or_error!(start, Position);
+    set_or_error!(goal, Position);
 
-    pub fn add_wall(mut self, pos: Pos) -> Self {
+    pub fn add_wall(mut self, pos: Position) -> Self {
         self.walls.insert(pos);
         self
     }

@@ -1,14 +1,14 @@
 use std::f64::consts::SQRT_2;
 
-use crate::{maze::Maze, position::Pos};
+use crate::{maze::Maze, position::Position};
 
 pub trait MazeHeuristic {
-    fn compute_heuristic(&self, node: Pos) -> f64;
+    fn compute_heuristic(&self, node: Position) -> f64;
 }
 
 #[derive(Default)]
 pub struct DiagonalHeuristic {
-    goal: Pos,
+    goal: Position,
 }
 
 impl DiagonalHeuristic {
@@ -18,7 +18,7 @@ impl DiagonalHeuristic {
 }
 
 impl MazeHeuristic for DiagonalHeuristic {
-    fn compute_heuristic(&self, node: Pos) -> f64 {
+    fn compute_heuristic(&self, node: Position) -> f64 {
         let diff = (node - self.goal).abs();
 
         let min = diff.min_element() as f64;

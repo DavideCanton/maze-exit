@@ -7,7 +7,7 @@ use std::{
 use byteorder::{BigEndian, WriteBytesExt};
 use clap::{Parser, Subcommand};
 use maze_exit_bin_common::{read_maze, BinaryReaderCell, MAZE_BINARY_READER_HEADER};
-use maze_exit_lib::{maze::Maze, position::Pos};
+use maze_exit_lib::{maze::Maze, position::Position};
 use rayon::prelude::*;
 use zstd::Encoder;
 
@@ -15,7 +15,7 @@ use BinaryReaderCell::*;
 
 const BINARY_EXT: &str = "bin";
 
-fn set(vec: &mut [u8], pos: Pos, cell: BinaryReaderCell, maze: &Maze) {
+fn set(vec: &mut [u8], pos: Position, cell: BinaryReaderCell, maze: &Maze) {
     let index = (pos.y as usize) * (maze.width() as usize) + (pos.x as usize);
 
     let i = index / 4;

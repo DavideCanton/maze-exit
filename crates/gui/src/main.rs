@@ -19,7 +19,7 @@ use maze_exit_lib::{
     channel::sync_channel,
     heuristics::{DiagonalHeuristic, MazeHeuristic},
     maze::Maze,
-    position::Pos,
+    position::Position,
 };
 
 const W: i32 = 1280;
@@ -41,8 +41,8 @@ const BLUE: Color = Color::new(0.0, 0.0, 1.0, 1.0);
 
 struct App {
     maze: Arc<Maze>,
-    queue: Vec<(Pos, f64)>,
-    path: Vec<Pos>,
+    queue: Vec<(Position, f64)>,
+    path: Vec<Position>,
     end: bool,
     camera: Camera2D,
     original_zoom: Vec2,
@@ -131,7 +131,7 @@ impl App {
         }
     }
 
-    fn draw_point(&self, point: Pos, color: Color) {
+    fn draw_point(&self, point: Position, color: Color) {
         let x = point.x as f32;
         let y = point.y as f32;
         draw_rectangle(x, y, 1.0, 1.0, color);

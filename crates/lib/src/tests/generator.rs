@@ -4,7 +4,7 @@ use crate::{
     algorithm::Child,
     generator::{ChildrenGenerator, JpsGenerator},
     maze_builder::MazeBuilder,
-    position::Pos,
+    position::Position,
 };
 
 #[test]
@@ -15,9 +15,9 @@ fn test_generate_no_parent_walls() {
     let children = gen.generate_children(maze.start(), None);
     assert_eq!(children.len(), 3);
 
-    contains_child(&children, Pos::new(1, 0), 1.0);
-    contains_child(&children, Pos::new(0, 1), 1.0);
-    contains_child(&children, Pos::new(1, 1), SQRT_2);
+    contains_child(&children, Position::new(1, 0), 1.0);
+    contains_child(&children, Position::new(0, 1), 1.0);
+    contains_child(&children, Position::new(1, 1), SQRT_2);
 }
 
 #[test]
@@ -28,14 +28,14 @@ fn test_generate_no_parent() {
     let children = gen.generate_children((1, 1).into(), None);
     assert_eq!(children.len(), 8);
 
-    contains_child(&children, Pos::new(1, 0), 1.0);
-    contains_child(&children, Pos::new(0, 1), 1.0);
-    contains_child(&children, Pos::new(1, 2), 1.0);
-    contains_child(&children, Pos::new(2, 1), 1.0);
-    contains_child(&children, Pos::new(0, 0), SQRT_2);
-    contains_child(&children, Pos::new(2, 0), SQRT_2);
-    contains_child(&children, Pos::new(2, 2), SQRT_2);
-    contains_child(&children, Pos::new(0, 2), SQRT_2);
+    contains_child(&children, Position::new(1, 0), 1.0);
+    contains_child(&children, Position::new(0, 1), 1.0);
+    contains_child(&children, Position::new(1, 2), 1.0);
+    contains_child(&children, Position::new(2, 1), 1.0);
+    contains_child(&children, Position::new(0, 0), SQRT_2);
+    contains_child(&children, Position::new(2, 0), SQRT_2);
+    contains_child(&children, Position::new(2, 2), SQRT_2);
+    contains_child(&children, Position::new(0, 2), SQRT_2);
 }
 
 fn maze_builder() -> MazeBuilder {
@@ -46,6 +46,6 @@ fn maze_builder() -> MazeBuilder {
         .goal((9, 9).into())
 }
 
-fn contains_child(children: &[Child], pos: Pos, weight: f64) -> bool {
+fn contains_child(children: &[Child], pos: Position, weight: f64) -> bool {
     children.iter().any(|c| c.node == pos && c.weight == weight)
 }

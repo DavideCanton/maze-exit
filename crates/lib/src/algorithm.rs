@@ -6,7 +6,8 @@ use std::{
 use typed_arena::Arena;
 
 use crate::{
-    channel::ChannelSender, generator::ChildrenGenerator, heuristics::MazeHeuristic, position::Pos,
+    channel::ChannelSender, generator::ChildrenGenerator, heuristics::MazeHeuristic,
+    position::Position,
 };
 
 #[derive(Default, Debug)]
@@ -18,16 +19,16 @@ pub struct Info {
 #[derive(Debug)]
 pub struct QueueNode {
     pub heuristic: f64,
-    pub node: Pos,
+    pub node: Position,
     pub depth: f64,
 }
 
 impl QueueNode {
-    fn new(node: Pos, heuristic: f64) -> Self {
+    fn new(node: Position, heuristic: f64) -> Self {
         QueueNode::with_depth(node, heuristic, 0.0)
     }
 
-    fn with_depth(node: Pos, heuristic: f64, depth: f64) -> Self {
+    fn with_depth(node: Position, heuristic: f64, depth: f64) -> Self {
         QueueNode {
             heuristic,
             node,
@@ -61,32 +62,32 @@ impl Ord for QueueNode {
 
 #[derive(Debug, PartialEq)]
 pub struct Child {
-    pub node: Pos,
+    pub node: Position,
     pub weight: f64,
 }
 
 impl Child {
-    pub fn new(node: Pos, weight: f64) -> Self {
+    pub fn new(node: Position, weight: f64) -> Self {
         Child { node, weight }
     }
 }
 
 pub enum Message {
-    Enqueued(Pos, f64),
-    End(Vec<Pos>),
+    Enqueued(Position, f64),
+    End(Vec<Position>),
 }
 
 pub fn a_star<G: ChildrenGenerator, C: ChannelSender<Message>>(
-    start: Pos,
-    goal: Pos,
+    start: Position,
+    goal: Position,
     heuristic: &dyn MazeHeuristic,
     gen: &G,
     channel: C,
-) -> (Option<Vec<Pos>>, Info) {
+) -> (Option<Vec<Position>>, Info) {
     let node_arena = Arena::new();
 
     let mut depth = HashMap::new();
-    let mut parents: HashMap<Pos, Pos> = HashMap::new();
+    let mut parents: HashMap<Position, Position> = HashMap::new();
     let mut queue: BinaryHeap<&QueueNode> = BinaryHeap::new();
     let mut visited = HashSet::new();
     let mut info = Info::default();

@@ -2,13 +2,13 @@ use std::ops::Index;
 
 use glam::I16Vec2;
 
-pub type Pos = I16Vec2;
-pub type PosUnit = <Pos as Index<usize>>::Output;
+pub type Position = I16Vec2;
+pub type PositionUnit = <Position as Index<usize>>::Output;
 
-pub trait MyFuncs: Sized {
-    fn convert<T: Into<PosUnit>>(x: T, y: T) -> Self;
+pub trait PosFunctions: Sized {
+    fn convert<T: Into<PositionUnit>>(x: T, y: T) -> Self;
 
-    fn try_convert<T: TryInto<PosUnit>>(x: T, y: T) -> Result<Self, T::Error>;
+    fn try_convert<T: TryInto<PositionUnit>>(x: T, y: T) -> Result<Self, T::Error>;
 
     fn is_diagonal(&self) -> bool;
 
@@ -43,14 +43,14 @@ pub trait MyFuncs: Sized {
     }
 }
 
-impl MyFuncs for Pos {
-    fn convert<T: Into<PosUnit>>(x: T, y: T) -> Self {
+impl PosFunctions for Position {
+    fn convert<T: Into<PositionUnit>>(x: T, y: T) -> Self {
         let x = x.into();
         let y = y.into();
         Self::new(x, y)
     }
 
-    fn try_convert<T: TryInto<PosUnit>>(x: T, y: T) -> Result<Self, T::Error> {
+    fn try_convert<T: TryInto<PositionUnit>>(x: T, y: T) -> Result<Self, T::Error> {
         let x = x.try_into()?;
         let y = y.try_into()?;
         Ok(Self::new(x, y))
@@ -74,18 +74,18 @@ impl MyFuncs for Pos {
     }
 
     fn up(&self) -> Self {
-        *self + Pos::NEG_Y
+        *self + Position::NEG_Y
     }
 
     fn down(&self) -> Self {
-        *self + Pos::Y
+        *self + Position::Y
     }
 
     fn left(&self) -> Self {
-        *self + Pos::NEG_X
+        *self + Position::NEG_X
     }
 
     fn right(&self) -> Self {
-        *self + Pos::X
+        *self + Position::X
     }
 }
