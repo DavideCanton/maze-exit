@@ -1,13 +1,14 @@
 use std::{
     cmp::{max, Ordering},
     collections::{BinaryHeap, HashMap, HashSet},
+    time::Duration,
 };
 
 use typed_arena::Arena;
 
 use crate::{
     channel::ChannelSender,
-    generator::{ChildrenGenerator, MazePath},
+    generator::{ChildrenGenerator, PathInfo},
     heuristics::MazeHeuristic,
     position::Position,
 };
@@ -16,7 +17,8 @@ use crate::{
 pub struct Info {
     pub max_length: usize,
     pub nodes: u32,
-    pub path: Option<MazePath>,
+    pub path: Option<PathInfo>,
+    pub time: Duration,
 }
 
 #[derive(Debug)]
@@ -77,7 +79,7 @@ impl Child {
 
 pub enum Message {
     Enqueued(Position, f64),
-    End(Option<MazePath>),
+    End(Info),
 }
 
 pub fn a_star<G: ChildrenGenerator, C: ChannelSender<Message>>(
@@ -116,7 +118,9 @@ pub fn a_star<G: ChildrenGenerator, C: ChannelSender<Message>>(
             }
             path.push(start);
             path.reverse();
-            info.path.replace(path);
+
+            info.path.replace(gen.reconstruct_path(&path));
+
             return info;
         }
 

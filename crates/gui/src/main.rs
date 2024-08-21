@@ -13,7 +13,7 @@ use macroquad::{
     shapes::draw_rectangle,
     window::{clear_background, next_frame, Conf},
 };
-use maze_exit_bin_common::{find_path, parse_args, read_maze, Args};
+use maze_exit_bin_common::{find_path, parse_args, print_info, read_maze, Args};
 use maze_exit_lib::{
     algorithm::Message,
     channel::sync_channel,
@@ -163,12 +163,14 @@ impl App {
                 Message::Enqueued(pos, dist) => {
                     self.queue.push((pos, dist));
                 }
-                Message::End(Some(p)) => {
-                    if self.path.is_empty() {
-                        self.path.extend(p);
+                Message::End(info) => {
+                    print_info(&info);
+                    if let Some(path_info) = info.path {
+                        if self.path.is_empty() {
+                            self.path.extend(path_info.path);
+                        }
                     }
                 }
-                _ => (),
             }
         }
     }

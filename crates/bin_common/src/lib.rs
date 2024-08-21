@@ -5,9 +5,9 @@ use std::time::Instant;
 
 use anyhow::Result;
 use maze_exit_lib::{
-    algorithm::{a_star, Message},
+    algorithm::{a_star, Info, Message},
     channel::ChannelSender,
-    generator::{ChildrenGenerator, JpsGenerator},
+    generator::JpsGenerator,
     heuristics::MazeHeuristic,
     maze::Maze,
 };
@@ -24,7 +24,7 @@ pub fn find_path(
     let gen = JpsGenerator::new(maze);
     let start_time = Instant::now();
 
-    let info = a_star(
+    let mut info = a_star(
         maze.start(),
         maze.goal(),
         heuristic.as_ref(),
@@ -33,24 +33,27 @@ pub fn find_path(
     );
 
     let end_time = Instant::now() - start_time;
+    info.time = end_time;
 
-    match info.path {
-        Some(ref path) => {
-            let (path, cost) = gen.reconstruct_path(path);
-            let path_len = path.len();
-            println!("Path found!");
-            println!("Length: {}", path_len);
-            println!("Cost: {}", cost);
-        }
-        None => {
-            println!("Path not found")
-        }
-    }
-
-    let _ = channel.send(Message::End(info.path));
-    println!("Time: {}s", end_time.as_secs_f64());
-    println!("Max queue length: {}", info.max_length);
-    println!("Nodes visited: {}", info.nodes);
+    let _ = channel.send(Message::End(info));
 
     Ok(())
+}
+
+pub fn print_info(info: &Info) {
+    match info.path {
+        Some(ref path) => {
+            let path_len = path.path_len();
+            println!("Path found!");
+            println!("Length: {}", path_len);
+            println!("Cost: {}", path.cost);
+        }
+        None => {
+            println!("Path not found");
+        }
+    };
+
+    println!("Time: {}s", info.time.as_secs_f64());
+    println!("Max queue length: {}", info.max_length);
+    println!("Nodes visited: {}", info.nodes);
 }

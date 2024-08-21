@@ -22,14 +22,17 @@ fn test_find_path() {
     let path = info.path;
 
     assert!(path.is_some());
+    let path = path.unwrap();
+
     assert_eq!(
-        path.unwrap(),
+        path.path,
         &[
             Position::new(0, 0),
             Position::new(1, 1),
             Position::new(9, 9)
         ]
     );
+    assert_eq!(path.cost, 1.0);
 
     assert!(info.max_length > 0);
     assert!(info.nodes > 0);

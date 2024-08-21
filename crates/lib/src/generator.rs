@@ -9,9 +9,24 @@ use crate::position::{PosFunctions, Position};
 pub type MazePath = Vec<Position>;
 pub type MazePathRef<'a> = &'a [Position];
 
+#[derive(Debug, Default)]
+pub struct PathInfo {
+    pub path: MazePath,
+    pub cost: f64,
+}
+
+impl PathInfo {
+    pub fn new(path: MazePath, cost: f64) -> Self {
+        PathInfo { path, cost }
+    }
+    
+    pub fn path_len(&self) -> usize {
+        self.path.len()
+    }
+}
 pub trait ChildrenGenerator {
     fn generate_children(&self, current: Position, parent: Option<Position>) -> Vec<Child>;
-    fn reconstruct_path(&self, path: MazePathRef) -> (MazePath, f64);
+    fn reconstruct_path(&self, path: MazePathRef) -> PathInfo;
 }
 
 pub struct JpsGenerator<'a> {
@@ -146,9 +161,9 @@ impl ChildrenGenerator for JpsGenerator<'_> {
         }
     }
 
-    fn reconstruct_path(&self, path: MazePathRef) -> (MazePath, f64) {
+    fn reconstruct_path(&self, path: MazePathRef) -> PathInfo {
         if path.is_empty() {
-            return (Vec::new(), 0.0);
+            return PathInfo::default();
         }
 
         let mut result = vec![*path.first().unwrap()];
@@ -165,6 +180,6 @@ impl ChildrenGenerator for JpsGenerator<'_> {
             }
         }
 
-        (result, cost)
+        PathInfo::new(result, cost)
     }
 }
