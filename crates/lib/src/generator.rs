@@ -19,7 +19,7 @@ impl PathInfo {
     pub fn new(path: MazePath, cost: f64) -> Self {
         PathInfo { path, cost }
     }
-    
+
     pub fn path_len(&self) -> usize {
         self.path.len()
     }
