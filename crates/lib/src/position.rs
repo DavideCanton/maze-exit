@@ -1,10 +1,14 @@
-use glam::I64Vec2;
+use std::ops::Index;
 
-pub type PosUnit = i64;
-pub type Pos = I64Vec2;
+use glam::I16Vec2;
+
+pub type Pos = I16Vec2;
+pub type PosUnit = <Pos as Index<usize>>::Output;
 
 pub trait MyFuncs: Sized {
     fn convert<T: Into<PosUnit>>(x: T, y: T) -> Self;
+
+    fn try_convert<T: TryInto<PosUnit>>(x: T, y: T) -> Result<Self, T::Error>;
 
     fn is_diagonal(&self) -> bool;
 
@@ -43,7 +47,13 @@ impl MyFuncs for Pos {
     fn convert<T: Into<PosUnit>>(x: T, y: T) -> Self {
         let x = x.into();
         let y = y.into();
-        Pos::new(x, y)
+        Self::new(x, y)
+    }
+
+    fn try_convert<T: TryInto<PosUnit>>(x: T, y: T) -> Result<Self, T::Error> {
+        let x = x.try_into()?;
+        let y = y.try_into()?;
+        Ok(Self::new(x, y))
     }
 
     fn is_diagonal(&self) -> bool {

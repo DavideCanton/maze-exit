@@ -77,7 +77,7 @@ impl MazeReader for MazeBinaryReader {
                     break;
                 }
                 remaining -= 1;
-                let pos = Pos::convert(x, y);
+                let pos = Pos::try_convert(x, y)?;
                 match v {
                     Cell::Wall => builder = builder.add_wall(pos),
                     Cell::Start => builder = builder.start(pos),

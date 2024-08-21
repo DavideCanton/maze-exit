@@ -73,24 +73,19 @@ impl<'a> JpsGenerator<'a> {
     }
 
     fn compute_forced_straight(&self, current: Pos, mv: Pos) -> Vec<Pos> {
-        mv.orthogonal()
-            .iter()
-            .map(|&d| current + d)
-            .filter(|&n| self.maze.is_wall(n))
-            .map(|n| n + mv)
-            .collect()
+        self.compute_forced(&mv.orthogonal(), current, Some(mv))
     }
 
     fn compute_forced_diagonal(&self, current: Pos, mv: Pos) -> Vec<Pos> {
-        mv.components()
+        self.compute_forced(&mv.components(), current, None)
+    }
+
+    fn compute_forced(&self, positions: &[Pos], current: Pos, add: Option<Pos>) -> Vec<Pos> {
+        positions
             .iter()
-            .filter_map(|&c| {
-                let n = current + c;
-                if self.maze.is_wall(n) {
-                    Some(n + c)
-                } else {
-                    None
-                }
+            .filter_map(|&dir| {
+                let n = current + dir;
+                self.maze.is_wall(n).then(|| n + add.unwrap_or(dir))
             })
             .collect()
     }
