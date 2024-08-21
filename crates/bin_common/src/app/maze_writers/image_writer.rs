@@ -1,6 +1,6 @@
 use anyhow::Result;
 use image::{ImageBuffer, ImageFormat, Rgb};
-use maze_exit_lib::{generator::MazePath, maze::Maze};
+use maze_exit_lib::{generator::MazePath, maze::Maze, position::Position};
 use std::io::{Seek, Write};
 
 use super::{MazeWriter, MazeWriterWithPath};
@@ -8,21 +8,20 @@ use super::{MazeWriter, MazeWriterWithPath};
 pub struct ImageMazeWriter;
 
 impl ImageMazeWriter {
+    fn set_pixel(&self, image: &mut ImageBuffer<Rgb<u8>, Vec<u8>>, pos: Position, color: Rgb<u8>) {
+        image.put_pixel(pos.x as u32, pos.y as u32, color);
+    }
+
     fn fill_image(&self, maze: &Maze) -> ImageBuffer<Rgb<u8>, Vec<u8>> {
         let mut image = ImageBuffer::from_pixel(maze.width(), maze.height(), Rgb([255, 255, 255]));
 
         let black = Rgb([0, 0, 0]);
         for w in maze.walls() {
-            image.put_pixel(w.x as u32, w.y as u32, black);
+            self.set_pixel(&mut image, w, black);
         }
 
-        image.put_pixel(
-            maze.start().x as u32,
-            maze.start().y as u32,
-            Rgb([255, 0, 0]),
-        );
-
-        image.put_pixel(maze.goal().x as u32, maze.goal().y as u32, Rgb([0, 255, 0]));
+        self.set_pixel(&mut image, maze.start(), Rgb([255, 0, 0]));
+        self.set_pixel(&mut image, maze.goal(), Rgb([0, 255, 0]));
 
         image
     }
@@ -40,8 +39,9 @@ impl<W: Write + Seek> MazeWriterWithPath<W> for ImageMazeWriter {
     fn write_maze_with_path(&self, maze: &Maze, path: &MazePath, mut writer: W) -> Result<()> {
         let mut image = self.fill_image(maze);
 
-        for p in path.iter() {
-            image.put_pixel(p.x as u32, p.y as u32, Rgb([0, 0, 255]));
+        let blue = Rgb([0, 0, 255]);
+        for &p in path.iter() {
+            self.set_pixel(&mut image, p, blue);
         }
 
         image.write_to(&mut writer, ImageFormat::Png)?;
