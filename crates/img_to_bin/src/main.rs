@@ -98,7 +98,7 @@ fn handle_dir(src: PathBuf, dst: Option<PathBuf>) -> Result<(), anyhow::Error> {
         .into_par_iter()
         .filter(|f| f.file_type().map(|t| t.is_file()).unwrap_or_default())
         .map(|f| f.path())
-        .filter(|f| f.extension().unwrap_or_default() != BINARY_EXT)
+        .filter(|f| f.extension().map(|v| v != BINARY_EXT).unwrap_or_default())
         .for_each(|fp| {
             let dst = &dst.join(fp.with_extension(BINARY_EXT).file_name().unwrap());
             println!("Translating {:?} to {:?}", fp, dst);
