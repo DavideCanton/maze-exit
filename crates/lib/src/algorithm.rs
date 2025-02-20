@@ -1,5 +1,5 @@
 use std::{
-    cmp::{max, Ordering},
+    cmp::{Ordering, max},
     collections::{BinaryHeap, HashMap, HashSet},
     time::Duration,
 };
@@ -86,7 +86,7 @@ pub fn a_star<G: ChildrenGenerator, C: ChannelSender<Message>>(
     start: Position,
     goal: Position,
     heuristic: &dyn MazeHeuristic,
-    gen: &G,
+    generator: &G,
     channel: C,
 ) -> Info {
     let node_arena = Arena::new();
@@ -119,12 +119,14 @@ pub fn a_star<G: ChildrenGenerator, C: ChannelSender<Message>>(
             path.push(start);
             path.reverse();
 
-            info.path.replace(gen.reconstruct_path(&path));
+            info.path.replace(generator.reconstruct_path(&path));
 
             return info;
         }
 
-        for generated in gen.generate_children(current_node, parents.get(&current_node).copied()) {
+        for generated in
+            generator.generate_children(current_node, parents.get(&current_node).copied())
+        {
             let Child {
                 node: successor,
                 weight,

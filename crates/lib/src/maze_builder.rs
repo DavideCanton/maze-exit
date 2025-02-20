@@ -1,6 +1,6 @@
 use crate::maze::Maze;
 use crate::position::Position;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use std::collections::HashSet;
 use std::fmt::Debug;
 

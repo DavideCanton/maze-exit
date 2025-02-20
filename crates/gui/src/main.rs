@@ -1,26 +1,26 @@
 use std::{
     fs::File,
-    sync::{mpsc, Arc},
+    sync::{Arc, mpsc},
     thread,
 };
 
 use anyhow::Result;
-use clap::{command, Parser};
+use clap::{Parser, command};
 use macroquad::{
-    camera::{set_camera, Camera2D},
-    color::{Color, BLACK, WHITE},
-    input::{get_keys_pressed, mouse_wheel, KeyCode},
+    camera::{Camera2D, set_camera},
+    color::{BLACK, Color, WHITE},
+    input::{KeyCode, get_keys_pressed, mouse_wheel},
     math::{Rect, Vec2},
     shapes::draw_rectangle,
-    window::{clear_background, next_frame, Conf},
+    window::{Conf, clear_background, next_frame},
 };
 use maze_exit_bin_common::{
-    find_path, parse_args, print_info, read_maze, Args, ImageMazeWriter, MazeWriter,
-    MazeWriterWithPath,
+    Args, ImageMazeWriter, MazeWriter, MazeWriterWithPath, find_path, parse_args, print_info,
+    read_maze,
 };
 use maze_exit_lib::{
     algorithm::Message,
-    channel::{channel, sync_channel, ChannelSender},
+    channel::{ChannelSender, channel, sync_channel},
     heuristics::{DiagonalHeuristic, MazeHeuristic},
     maze::Maze,
     position::Position,

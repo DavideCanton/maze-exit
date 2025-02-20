@@ -10,9 +10,9 @@ use crate::{
 #[test]
 fn test_generate_no_parent_walls() {
     let maze = maze_builder().build().unwrap();
-    let gen = JpsGenerator::new(&maze);
+    let generator = JpsGenerator::new(&maze);
 
-    let children = gen.generate_children(maze.start(), None);
+    let children = generator.generate_children(maze.start(), None);
     assert_eq!(children.len(), 3);
 
     contains_child(&children, Position::new(1, 0), 1.0);
@@ -23,9 +23,9 @@ fn test_generate_no_parent_walls() {
 #[test]
 fn test_generate_no_parent() {
     let maze = maze_builder().build().unwrap();
-    let gen = JpsGenerator::new(&maze);
+    let generator = JpsGenerator::new(&maze);
 
-    let children = gen.generate_children((1, 1).into(), None);
+    let children = generator.generate_children((1, 1).into(), None);
     assert_eq!(children.len(), 8);
 
     contains_child(&children, Position::new(1, 0), 1.0);

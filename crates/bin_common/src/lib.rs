@@ -5,17 +5,17 @@ use std::time::Instant;
 
 use anyhow::Result;
 use maze_exit_lib::{
-    algorithm::{a_star, Info, Message},
+    algorithm::{Info, Message, a_star},
     channel::ChannelSender,
     generator::JpsGenerator,
     heuristics::MazeHeuristic,
     maze::Maze,
 };
 
-pub use app::args::{parse_args, Args};
-pub use app::maze_readers::{read_maze, BinaryReaderCell, MAZE_BINARY_READER_HEADER};
+pub use app::args::{Args, parse_args};
+pub use app::maze_readers::{BinaryReaderCell, MAZE_BINARY_READER_HEADER, read_maze};
 pub use app::maze_writers::{
-    binary_writer::BinaryMazeWriter, image_writer::ImageMazeWriter, MazeWriter, MazeWriterWithPath,
+    MazeWriter, MazeWriterWithPath, binary_writer::BinaryMazeWriter, image_writer::ImageMazeWriter,
 };
 pub use display::Displayer;
 
@@ -24,14 +24,14 @@ pub fn find_path(
     heuristic: Box<dyn MazeHeuristic>,
     channel: impl ChannelSender<Message>,
 ) -> Result<()> {
-    let gen = JpsGenerator::new(maze);
+    let generator = JpsGenerator::new(maze);
     let start_time = Instant::now();
 
     let mut info = a_star(
         maze.start(),
         maze.goal(),
         heuristic.as_ref(),
-        &gen,
+        &generator,
         channel.clone(),
     );
 

@@ -2,10 +2,10 @@
 name = "maze_exit_lib"
 version = "0.1.0"
 authors = ["Davide Canton <davide.canton5@gmail.com>"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-itertools = "0.13.0"
+itertools = "0.14.0"
 typed-arena = "2.0.2"
-glam = "0.28.0"
+glam = "0.30.0"
 anyhow.workspace = true

@@ -1,6 +1,6 @@
 use anyhow::Result;
 use std::{
-    fs::{create_dir, metadata, File},
+    fs::{File, create_dir, metadata},
     io::ErrorKind,
     path::{Path, PathBuf},
 };
@@ -8,7 +8,7 @@ use std::{
 use clap::{Parser, Subcommand};
 use rayon::prelude::*;
 
-use maze_exit_bin_common::{read_maze, BinaryMazeWriter, MazeWriter};
+use maze_exit_bin_common::{BinaryMazeWriter, MazeWriter, read_maze};
 
 const BINARY_EXT: &str = "bin";
 

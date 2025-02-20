@@ -1,6 +1,5 @@
 use anyhow::{Context, Result};
-use image::io::Reader;
-use image::Rgb;
+use image::{ImageReader, Rgb};
 use maze_exit_lib::position::{PosFunctions, Position};
 use std::io::{BufReader, Read, Seek};
 
@@ -15,7 +14,7 @@ pub(crate) struct MazeImageReader;
 
 impl MazeReader for MazeImageReader {
     fn read_maze(&self, reader: impl Read + Seek) -> Result<Maze> {
-        let mut reader = Reader::new(BufReader::new(reader)).with_guessed_format()?;
+        let mut reader = ImageReader::new(BufReader::new(reader)).with_guessed_format()?;
         reader.no_limits();
         let image = reader.decode().context("Failed image load")?.to_rgb8();
         let mut builder = MazeBuilder::new();

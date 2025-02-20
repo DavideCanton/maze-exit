@@ -2,7 +2,7 @@
 name = "maze_exit_bin_common"
 version = "0.1.0"
 authors = ["Davide Canton <davide.canton5@gmail.com>"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 maze_exit_lib = { path = "../lib" }

@@ -1,7 +1,7 @@
 use std::thread;
 
-use anyhow::{bail, Result};
-use maze_exit_bin_common::{find_path, parse_args, print_info, read_maze, Args};
+use anyhow::{Result, bail};
+use maze_exit_bin_common::{Args, find_path, parse_args, print_info, read_maze};
 use maze_exit_lib::{algorithm::Message, channel::channel, heuristics::DiagonalHeuristic};
 
 fn main() -> Result<()> {
@@ -17,10 +17,12 @@ fn main() -> Result<()> {
 
     let (tx, rx) = channel();
 
-    let jh = thread::spawn(move || loop {
-        let msg = rx.recv().unwrap();
-        if let Message::End(info) = msg {
-            return info;
+    let jh = thread::spawn(move || {
+        loop {
+            let msg = rx.recv().unwrap();
+            if let Message::End(info) = msg {
+                return info;
+            }
         }
     });
 

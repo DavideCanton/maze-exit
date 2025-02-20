@@ -16,9 +16,9 @@ fn test_find_path() {
         .unwrap();
 
     let heuristic = DiagonalHeuristic::new(&maze);
-    let gen = JpsGenerator::new(&maze);
+    let generator = JpsGenerator::new(&maze);
 
-    let info = a_star(start, goal, &heuristic, &gen, noop_sender());
+    let info = a_star(start, goal, &heuristic, &generator, noop_sender());
     let path = info.path;
 
     assert!(path.is_some());
