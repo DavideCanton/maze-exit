@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::Result;
-use clap::{Parser, command};
+use clap::Parser;
 use macroquad::{
     camera::{Camera2D, set_camera},
     color::{BLACK, Color, WHITE},
