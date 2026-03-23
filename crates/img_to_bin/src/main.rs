@@ -54,10 +54,10 @@ fn handle_dir(src: PathBuf, dst: Option<PathBuf>) -> Result<(), anyhow::Error> {
 
     let dst = dst.unwrap_or_else(|| src.clone());
 
-    if let Err(e) = create_dir(&dst) {
-        if e.kind() != ErrorKind::AlreadyExists {
-            anyhow::bail!(e);
-        }
+    if let Err(e) = create_dir(&dst)
+        && e.kind() != ErrorKind::AlreadyExists
+    {
+        anyhow::bail!(e);
     }
 
     let files: Vec<_> = src.read_dir()?.flatten().collect();

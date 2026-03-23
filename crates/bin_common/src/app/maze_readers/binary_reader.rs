@@ -6,7 +6,7 @@ use maze_exit_lib::{
     position::{PosFunctions, Position},
 };
 use std::{
-    io::{Read, Seek},
+    io::{BufReader, Read, Seek},
     mem,
 };
 
@@ -57,10 +57,11 @@ impl MazeBinaryReader {
 }
 
 impl MazeReader for MazeBinaryReader {
+    #[allow(clippy::unbuffered_bytes)]
     fn read_maze(&self, reader: impl Read + Seek) -> Result<Maze> {
         let mut builder = MazeBuilder::new();
 
-        let mut decoder = zstd::stream::Decoder::new(reader)?;
+        let mut decoder = zstd::stream::Decoder::new(BufReader::new(reader))?;
 
         let w = decoder.read_u32::<BigEndian>()?;
         let h = decoder.read_u32::<BigEndian>()?;
