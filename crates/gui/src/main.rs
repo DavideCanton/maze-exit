@@ -150,10 +150,8 @@ impl App {
                 KeyCode::C => {
                     self.camera.offset = Vec2::ZERO;
                 }
-                KeyCode::S => {
-                    if self.solved {
-                        let _ = self.save_img();
-                    }
+                KeyCode::S if self.solved => {
+                    let _ = self.save_img();
                 }
                 _ => (),
             }
